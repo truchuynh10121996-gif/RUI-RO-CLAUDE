@@ -2484,8 +2484,6 @@ with tab_authors:
         <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 10px; margin-bottom: 40px;'>
             <p style='color: #2c3e50; font-size: 1.1rem; line-height: 1.8; margin: 0;'>
                 🌟 Chúng tôi là những Agribanker - những người giữ ánh sáng của niềm tin, lan tỏa tinh thần chuyển đổi số trên mọi miền đất nước
-                giải pháp <strong>Đánh giá Rủi ro Tín dụng Doanh nghiệp phiên bản 2.0</strong>
-                với công nghệ AI tiên tiến, mang đến sự chính xác và hiệu quả cao nhất.
             </p>
         </div>
     """, unsafe_allow_html=True)
