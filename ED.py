@@ -1403,7 +1403,7 @@ with tab_predict:
                 probs_array = model.predict_proba(ratios_predict[X.columns])[:, 1]
                 # Chuyển từ numpy array sang scalar để tránh lỗi ambiguous truth value
                 probs = float(probs_array[0])
-                preds = int(probs >= 0.5)
+                preds = int(probs >= 0.15)
                 # Thêm PD vào payload AI
                 data_for_ai['Xác suất Vỡ nợ (PD)'] = probs
                 data_for_ai['Dự đoán PD'] = "Default (Vỡ nợ)" if preds == 1 else "Non-Default (Không vỡ nợ)"
