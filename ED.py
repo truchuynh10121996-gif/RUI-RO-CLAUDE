@@ -37,30 +37,27 @@ except Exception:
     OpenAI = None
     _OPENAI_OK = False
 
-# Thư viện PDF Export
+# Thư viện Word Export
 try:
-    from reportlab.lib import colors
-    from reportlab.lib.pagesizes import A4, letter
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.units import inch, cm
-    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
-    from reportlab.pdfbase import pdfmetrics
-    from reportlab.pdfbase.ttfonts import TTFont
-    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+    from docx import Document
+    from docx.shared import Inches, Pt, RGBColor
+    from docx.enum.text import WD_ALIGN_PARAGRAPH
+    from docx.oxml.ns import qn
+    from docx.oxml import OxmlElement
     from io import BytesIO
-    _PDF_OK = True
+    _WORD_OK = True
 except Exception:
-    _PDF_OK = False
+    _WORD_OK = False
 
 MODEL_NAME = "gemini-2.5-flash"
 
 # =========================
-# HÀM TẠO PDF REPORT
+# HÀM TẠO WORD REPORT
 # =========================
 
-def generate_pdf_report(ratios_display, pd_value, pd_label, ai_analysis, fig_bar, fig_radar, company_name="KHÁCH HÀNG DOANH NGHIỆP"):
+def generate_word_report(ratios_display, pd_value, pd_label, ai_analysis, fig_bar, fig_radar, company_name="KHÁCH HÀNG DOANH NGHIỆP"):
     """
-    Tạo báo cáo PDF chuyên nghiệp từ kết quả phân tích tín dụng.
+    Tạo báo cáo Word chuyên nghiệp từ kết quả phân tích tín dụng.
 
     Parameters:
     - ratios_display: DataFrame chứa 14 chỉ số tài chính (index = tên chỉ số, column = giá trị)
@@ -72,196 +69,199 @@ def generate_pdf_report(ratios_display, pd_value, pd_label, ai_analysis, fig_bar
     - company_name: Tên công ty (mặc định)
 
     Returns:
-    - BytesIO object chứa PDF
+    - BytesIO object chứa Word document
     """
 
-    if not _PDF_OK:
-        raise Exception("Thiếu thư viện reportlab. Vui lòng cài đặt: pip install reportlab Pillow")
+    if not _WORD_OK:
+        raise Exception("Thiếu thư viện python-docx. Vui lòng cài đặt: pip install python-docx Pillow")
 
-    # Tạo buffer để chứa PDF
-    buffer = BytesIO()
+    # Tạo document mới
+    doc = Document()
 
-    # Tạo document với A4 page size
-    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=1.5*cm, bottomMargin=1.5*cm, leftMargin=2*cm, rightMargin=2*cm)
-
-    # Container cho các elements
-    elements = []
-
-    # Styles
-    styles = getSampleStyleSheet()
-
-    # Custom styles cho tiếng Việt (sử dụng font mặc định hỗ trợ UTF-8)
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Title'],
-        fontSize=18,
-        textColor=colors.HexColor('#c2185b'),
-        alignment=TA_CENTER,
-        spaceAfter=12,
-        fontName='Helvetica-Bold'
-    )
-
-    heading_style = ParagraphStyle(
-        'CustomHeading',
-        parent=styles['Heading2'],
-        fontSize=14,
-        textColor=colors.HexColor('#ff6b9d'),
-        spaceAfter=10,
-        spaceBefore=15,
-        fontName='Helvetica-Bold'
-    )
-
-    normal_style = ParagraphStyle(
-        'CustomNormal',
-        parent=styles['Normal'],
-        fontSize=10,
-        alignment=TA_JUSTIFY,
-        spaceAfter=8,
-        fontName='Helvetica'
-    )
+    # Cấu hình margin cho document
+    sections = doc.sections
+    for section in sections:
+        section.top_margin = Inches(0.8)
+        section.bottom_margin = Inches(0.8)
+        section.left_margin = Inches(1)
+        section.right_margin = Inches(1)
 
     # ===== 1. HEADER VỚI LOGO VÀ TIÊU ĐỀ =====
+    # Thêm logo nếu có
     try:
-        # Thử thêm logo nếu file tồn tại
         if os.path.exists("logo-agribank.jpg"):
-            logo = Image("logo-agribank.jpg", width=2*inch, height=0.8*inch)
-            elements.append(logo)
-            elements.append(Spacer(1, 0.3*inch))
+            doc.add_picture("logo-agribank.jpg", width=Inches(2.5))
+            last_paragraph = doc.paragraphs[-1]
+            last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     except Exception:
         pass
 
     # Tiêu đề chính
-    title = Paragraph("<b>BÁO CÁO ĐÁNH GIÁ RỦI RO TÍN DỤNG</b>", title_style)
-    elements.append(title)
+    title = doc.add_heading('BÁO CÁO ĐÁNH GIÁ RỦI RO TÍN DỤNG', 0)
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_run = title.runs[0]
+    title_run.font.size = Pt(20)
+    title_run.font.color.rgb = RGBColor(194, 24, 91)  # #c2185b
+    title_run.font.bold = True
 
-    subtitle = Paragraph(f"<b>Dự báo Xác suất Vỡ nợ (PD) & Phân tích AI Chuyên sâu</b>", normal_style)
-    elements.append(subtitle)
+    # Subtitle
+    subtitle = doc.add_paragraph('Dự báo Xác suất Vỡ nợ KHDN (PD) & Phân tích AI Chuyên sâu')
+    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    subtitle_run = subtitle.runs[0]
+    subtitle_run.font.size = Pt(13)
+    subtitle_run.font.color.rgb = RGBColor(255, 107, 157)  # #ff6b9d
+    subtitle_run.font.bold = True
 
     # Thông tin thời gian
-    date_info = Paragraph(f"Ngày xuất báo cáo: {datetime.now().strftime('%d/%m/%Y %H:%M')}", normal_style)
-    elements.append(date_info)
+    date_info = doc.add_paragraph(f"Ngày xuất báo cáo: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+    date_info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    date_run = date_info.runs[0]
+    date_run.font.size = Pt(10)
 
-    company_info = Paragraph(f"<b>Tên khách hàng:</b> {company_name}", normal_style)
-    elements.append(company_info)
+    # Thông tin khách hàng
+    company_info = doc.add_paragraph()
+    company_info.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    company_run = company_info.add_run(f"Tên khách hàng: {company_name}")
+    company_run.font.size = Pt(11)
+    company_run.font.bold = True
 
-    elements.append(Spacer(1, 0.3*inch))
+    doc.add_paragraph()  # Spacer
 
     # ===== 2. KẾT QUẢ DỰ BÁO PD =====
-    elements.append(Paragraph("<b>1. KẾT QUẢ DỰ BÁO XÁC SUẤT VỠ NỢ (PD)</b>", heading_style))
+    heading1 = doc.add_heading('1. KẾT QUẢ DỰ BÁO XÁC SUẤT VỠ NỢ (PD)', level=1)
+    heading1_run = heading1.runs[0]
+    heading1_run.font.color.rgb = RGBColor(255, 107, 157)  # #ff6b9d
 
+    pd_para = doc.add_paragraph()
     if pd.notna(pd_value):
-        pd_text = f"<b>Xác suất Vỡ nợ (PD):</b> {pd_value:.2%}<br/>"
-        pd_text += f"<b>Phân loại:</b> {pd_label}<br/>"
-        if "Default" in pd_label and "Non-Default" not in pd_label:
-            pd_text += "<b><font color='red'>⚠️ RỦI RO CAO - CẦN XEM XÉT KỸ LƯỠNG</font></b>"
-        else:
-            pd_text += "<b><font color='green'>✓ RỦI RO THẤP - KHẢ QUAN</font></b>"
-    else:
-        pd_text = "<b>Xác suất Vỡ nợ (PD):</b> Không có dữ liệu"
+        pd_para.add_run(f"Xác suất Vỡ nợ (PD): ").bold = True
+        pd_para.add_run(f"{pd_value:.2%}\n")
+        pd_para.add_run("Phân loại: ").bold = True
+        pd_para.add_run(f"{pd_label}\n")
 
-    elements.append(Paragraph(pd_text, normal_style))
-    elements.append(Spacer(1, 0.2*inch))
+        if "Default" in pd_label and "Non-Default" not in pd_label:
+            risk_run = pd_para.add_run("⚠️ RỦI RO CAO - CẦN XEM XÉT KỸ LƯỠNG")
+            risk_run.bold = True
+            risk_run.font.color.rgb = RGBColor(220, 53, 69)  # Red
+        else:
+            safe_run = pd_para.add_run("✓ RỦI RO THẤP - KHẢ QUAN")
+            safe_run.bold = True
+            safe_run.font.color.rgb = RGBColor(40, 167, 69)  # Green
+    else:
+        pd_para.add_run("Xác suất Vỡ nợ (PD): ").bold = True
+        pd_para.add_run("Không có dữ liệu")
+
+    doc.add_paragraph()  # Spacer
 
     # ===== 3. BẢNG CHỈ SỐ TÀI CHÍNH =====
-    elements.append(Paragraph("<b>2. CHỈ SỐ TÀI CHÍNH CHI TIẾT</b>", heading_style))
+    heading2 = doc.add_heading('2. CHỈ SỐ TÀI CHÍNH CHI TIẾT', level=1)
+    heading2_run = heading2.runs[0]
+    heading2_run.font.color.rgb = RGBColor(255, 107, 157)  # #ff6b9d
 
-    # Tạo data cho table
-    table_data = [["Chỉ số Tài chính", "Giá trị"]]
+    # Tạo bảng
+    table = doc.add_table(rows=1, cols=2)
+    table.style = 'Light Grid Accent 1'
 
+    # Header row
+    hdr_cells = table.rows[0].cells
+    hdr_cells[0].text = 'Chỉ số Tài chính'
+    hdr_cells[1].text = 'Giá trị'
+
+    # Style header
+    for cell in hdr_cells:
+        cell_para = cell.paragraphs[0]
+        cell_run = cell_para.runs[0]
+        cell_run.font.bold = True
+        cell_run.font.size = Pt(11)
+        cell_run.font.color.rgb = RGBColor(255, 255, 255)
+        # Set background color
+        shading_elm = OxmlElement('w:shd')
+        shading_elm.set(qn('w:fill'), 'FF6B9D')  # Pink
+        cell._element.get_or_add_tcPr().append(shading_elm)
+        cell_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    # Data rows
     for idx, row in ratios_display.iterrows():
-        indicator_name = str(idx)
+        row_cells = table.add_row().cells
+        row_cells[0].text = str(idx)
         value = row['Giá trị']
-        value_str = f"{value:.4f}" if pd.notna(value) else "N/A"
-        table_data.append([indicator_name, value_str])
+        row_cells[1].text = f"{value:.4f}" if pd.notna(value) else "N/A"
+        row_cells[1].paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.RIGHT
 
-    # Tạo table
-    table = Table(table_data, colWidths=[4.5*inch, 1.5*inch])
-    table.setStyle(TableStyle([
-        # Header
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#ff6b9d')),
-        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
-        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-        ('FONTSIZE', (0, 0), (-1, 0), 11),
-        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-
-        # Body
-        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
-        ('ALIGN', (0, 1), (0, -1), 'LEFT'),
-        ('ALIGN', (1, 1), (1, -1), 'RIGHT'),
-        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
-        ('FONTSIZE', (0, 1), (-1, -1), 9),
-        ('TOPPADDING', (0, 1), (-1, -1), 6),
-        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
-
-        # Grid
-        ('GRID', (0, 0), (-1, -1), 1, colors.grey),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fff5f7')]),
-    ]))
-
-    elements.append(table)
-    elements.append(Spacer(1, 0.3*inch))
+    doc.add_paragraph()  # Spacer
 
     # ===== 4. BIỂU ĐỒ VISUALIZATION =====
-    elements.append(PageBreak())  # Trang mới cho charts
-    elements.append(Paragraph("<b>3. TRỰC QUAN HÓA DỮ LIỆU</b>", heading_style))
+    doc.add_page_break()
+    heading3 = doc.add_heading('3. TRỰC QUAN HÓA DỮ LIỆU', level=1)
+    heading3_run = heading3.runs[0]
+    heading3_run.font.color.rgb = RGBColor(255, 107, 157)  # #ff6b9d
 
-    # Save bar chart to temporary buffer
+    # Bar chart
     try:
+        doc.add_heading('3.1. Biểu đồ Cột - Giá trị các Chỉ số', level=2)
         bar_buffer = BytesIO()
         fig_bar.savefig(bar_buffer, format='png', dpi=150, bbox_inches='tight')
         bar_buffer.seek(0)
-        bar_img = Image(bar_buffer, width=6*inch, height=4*inch)
-        elements.append(Paragraph("<b>3.1. Biểu đồ Cột - Giá trị các Chỉ số</b>", normal_style))
-        elements.append(Spacer(1, 0.1*inch))
-        elements.append(bar_img)
-        elements.append(Spacer(1, 0.3*inch))
+        doc.add_picture(bar_buffer, width=Inches(6))
+        last_paragraph = doc.paragraphs[-1]
+        last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        doc.add_paragraph()  # Spacer
     except Exception as e:
-        elements.append(Paragraph(f"<i>Không thể tạo biểu đồ cột: {str(e)}</i>", normal_style))
+        doc.add_paragraph(f"Không thể tạo biểu đồ cột: {str(e)}")
 
-    # Save radar chart to temporary buffer
+    # Radar chart
     try:
+        doc.add_heading('3.2. Biểu đồ Radar - Phân tích Đa chiều', level=2)
         radar_buffer = BytesIO()
         fig_radar.savefig(radar_buffer, format='png', dpi=150, bbox_inches='tight')
         radar_buffer.seek(0)
-        radar_img = Image(radar_buffer, width=5*inch, height=5*inch)
-        elements.append(Paragraph("<b>3.2. Biểu đồ Radar - Phân tích Đa chiều</b>", normal_style))
-        elements.append(Spacer(1, 0.1*inch))
-        elements.append(radar_img)
+        doc.add_picture(radar_buffer, width=Inches(5))
+        last_paragraph = doc.paragraphs[-1]
+        last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     except Exception as e:
-        elements.append(Paragraph(f"<i>Không thể tạo biểu đồ radar: {str(e)}</i>", normal_style))
+        doc.add_paragraph(f"Không thể tạo biểu đồ radar: {str(e)}")
 
     # ===== 5. PHÂN TÍCH AI =====
-    elements.append(PageBreak())  # Trang mới cho AI analysis
-    elements.append(Paragraph("<b>4. PHÂN TÍCH AI & KHUYẾN NGHỊ TÍN DỤNG</b>", heading_style))
+    doc.add_page_break()
+    heading4 = doc.add_heading('4. PHÂN TÍCH AI & KHUYẾN NGHỊ TÍN DỤNG', level=1)
+    heading4_run = heading4.runs[0]
+    heading4_run.font.color.rgb = RGBColor(255, 107, 157)  # #ff6b9d
 
     if ai_analysis and ai_analysis.strip():
-        # Format AI analysis text - chia thành các đoạn
+        # Chia thành các đoạn và thêm vào document
         analysis_paragraphs = ai_analysis.split('\n')
-        for para in analysis_paragraphs:
-            if para.strip():
-                # Highlight recommendation keywords
-                para_formatted = para.replace("CHO VAY", "<b><font color='green'>CHO VAY</font></b>")
-                para_formatted = para_formatted.replace("KHÔNG CHO VAY", "<b><font color='red'>KHÔNG CHO VAY</font></b>")
-                elements.append(Paragraph(para_formatted, normal_style))
-                elements.append(Spacer(1, 0.1*inch))
+        for para_text in analysis_paragraphs:
+            if para_text.strip():
+                para = doc.add_paragraph(para_text)
+                # Highlight keywords
+                if "CHO VAY" in para_text and "KHÔNG CHO VAY" not in para_text:
+                    for run in para.runs:
+                        if "CHO VAY" in run.text:
+                            run.font.color.rgb = RGBColor(40, 167, 69)  # Green
+                            run.bold = True
+                elif "KHÔNG CHO VAY" in para_text:
+                    for run in para.runs:
+                        if "KHÔNG CHO VAY" in run.text:
+                            run.font.color.rgb = RGBColor(220, 53, 69)  # Red
+                            run.bold = True
     else:
-        elements.append(Paragraph("<i>Chưa có phân tích từ AI. Vui lòng click nút 'Yêu cầu AI Phân tích & Đề xuất' để nhận khuyến nghị.</i>", normal_style))
+        doc.add_paragraph("Chưa có phân tích từ AI. Vui lòng click nút 'Yêu cầu AI Phân tích & Đề xuất' để nhận khuyến nghị.")
 
     # ===== 6. FOOTER =====
-    elements.append(Spacer(1, 0.5*inch))
-    footer = Paragraph(
-        f"<i>Báo cáo này được tạo tự động bởi Hệ thống Đánh giá Rủi ro Tín dụng - Powered by AI & Machine Learning<br/>"
-        f"© {datetime.now().year} Credit Risk Assessment System | Version 2.0 Premium</i>",
-        ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, textColor=colors.grey, alignment=TA_CENTER)
+    doc.add_paragraph()
+    footer = doc.add_paragraph(
+        f"Báo cáo này được tạo tự động bởi Hệ thống Đánh giá Rủi ro Tín dụng - Powered by AI & Machine Learning\n"
+        f"© {datetime.now().year} Credit Risk Assessment System | Version 2.0 Premium"
     )
-    elements.append(footer)
+    footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    footer_run = footer.runs[0]
+    footer_run.font.size = Pt(8)
+    footer_run.font.italic = True
+    footer_run.font.color.rgb = RGBColor(128, 128, 128)  # Grey
 
-    # Build PDF
-    doc.build(elements)
-
-    # Get PDF từ buffer
+    # Save to buffer
+    buffer = BytesIO()
+    doc.save(buffer)
     buffer.seek(0)
     return buffer
 
@@ -1362,27 +1362,27 @@ with tab_predict:
 
         st.divider()
 
-        # ===== NÚT XUẤT FILE PDF =====
-        st.markdown("### 4. 📄 Xuất Báo cáo PDF")
+        # ===== NÚT XUẤT FILE WORD =====
+        st.markdown("### 4. 📄 Xuất Báo cáo Word")
 
         export_container = st.container(border=True)
         with export_container:
-            st.markdown("Xuất toàn bộ phân tích (chỉ số tài chính, biểu đồ, PD, khuyến nghị AI) ra file PDF chuyên nghiệp.")
+            st.markdown("Xuất toàn bộ phân tích (chỉ số tài chính, biểu đồ, PD, khuyến nghị AI) ra file Word chuyên nghiệp.")
 
             col_export1, col_export2 = st.columns([3, 1])
 
             with col_export1:
-                company_name_input = st.text_input("Tên Khách hàng (tùy chọn):", value="KHÁCH HÀNG DOANH NGHIỆP", key="company_name_pdf")
+                company_name_input = st.text_input("Tên Khách hàng (tùy chọn):", value="KHÁCH HÀNG DOANH NGHIỆP", key="company_name_word")
 
             with col_export2:
                 st.write("")  # Spacer
 
-            if st.button("📥 Xuất file dữ liệu", use_container_width=True, type="primary", key="export_pdf_btn"):
-                if not _PDF_OK:
-                    st.error("❌ Thiếu thư viện reportlab. Không thể xuất PDF.")
+            if st.button("📥 Xuất file Word", use_container_width=True, type="primary", key="export_word_btn"):
+                if not _WORD_OK:
+                    st.error("❌ Thiếu thư viện python-docx. Không thể xuất Word.")
                 else:
                     try:
-                        with st.spinner("Đang tạo báo cáo PDF..."):
+                        with st.spinner("Đang tạo báo cáo Word..."):
                             # Lấy AI analysis từ session_state nếu có
                             ai_analysis_text = st.session_state.get('ai_analysis', '')
 
@@ -1448,8 +1448,8 @@ with tab_predict:
                             else:
                                 pd_label_text = "N/A"
 
-                            # Generate PDF
-                            pdf_buffer = generate_pdf_report(
+                            # Generate Word
+                            word_buffer = generate_word_report(
                                 ratios_display=ratios_display,
                                 pd_value=probs if pd.notna(probs) else np.nan,
                                 pd_label=pd_label_text,
@@ -1463,19 +1463,19 @@ with tab_predict:
                             plt.close(fig_bar_export)
                             plt.close(fig_radar_export)
 
-                        st.success("✅ Báo cáo PDF đã được tạo thành công!")
+                        st.success("✅ Báo cáo Word đã được tạo thành công!")
 
                         # Download button
                         st.download_button(
-                            label="💾 Tải xuống Báo cáo PDF",
-                            data=pdf_buffer,
-                            file_name=f"BaoCao_TinDung_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
-                            mime="application/pdf",
+                            label="💾 Tải xuống Báo cáo Word",
+                            data=word_buffer,
+                            file_name=f"BaoCao_TinDung_{datetime.now().strftime('%Y%m%d_%H%M%S')}.docx",
+                            mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                             use_container_width=True
                         )
 
                     except Exception as e:
-                        st.error(f"❌ Lỗi khi tạo PDF: {str(e)}")
+                        st.error(f"❌ Lỗi khi tạo Word: {str(e)}")
                         st.exception(e)
 
     else:
