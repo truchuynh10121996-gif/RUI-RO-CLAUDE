@@ -1084,6 +1084,28 @@ with tab_goal:
                 # Nếu không tìm thấy file, hiển thị message thân thiện
                 st.info(f"📊 Hình ảnh minh họa '{img}' sẽ được hiển thị ở đây")
 
+    # Nút lên đầu trang
+    st.markdown("""
+        <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
+            <a href='#' style='text-decoration: none;'>
+                <button style='
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    transition: all 0.3s ease;
+                '>
+                    ⬆️ Lên đầu trang
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
+
 with tab_build:
     st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
     st.info("Mô hình Hồi quy Logistic đã được huấn luyện trên **20% dữ liệu Test (chưa thấy)**.")
@@ -1203,6 +1225,28 @@ with tab_build:
             return ['background-color: #e0f0ff' if v else '' for v in is_max]
 
         st.dataframe(dt.style.format("{:.4f}").apply(highlight_max, axis=1), use_container_width=True)
+
+    # Nút lên đầu trang
+    st.markdown("""
+        <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
+            <a href='#' style='text-decoration: none;'>
+                <button style='
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    transition: all 0.3s ease;
+                '>
+                    ⬆️ Lên đầu trang
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
 
 with tab_predict:
     # Trang này được hiển thị mặc định
@@ -1578,6 +1622,28 @@ with tab_predict:
     else:
         st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14, dự báo PD và phân tích AI.")
 
+    # Nút lên đầu trang
+    st.markdown("""
+        <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
+            <a href='#' style='text-decoration: none;'>
+                <button style='
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    transition: all 0.3s ease;
+                '>
+                    ⬆️ Lên đầu trang
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
+
 # ========================================
 # TAB: DASHBOARD TÀI CHÍNH DOANH NGHIỆP (GSO)
 # ========================================
@@ -1630,15 +1696,7 @@ with tab_dashboard:
     st.divider()
 
     # Upload file, lấy dữ liệu từ AI, hoặc sử dụng dữ liệu mẫu
-    col_upload, col_ai, col_sample = st.columns([2, 1, 1])
-
-    with col_upload:
-        st.markdown("#### 📂 Tải lên Dữ liệu GSO")
-        uploaded_gso = st.file_uploader(
-            "Chọn file CSV hoặc Excel chứa dữ liệu GSO",
-            type=['csv', 'xlsx'],
-            key="gso_upload"
-        )
+    col_ai, col_sample, col_upload = st.columns([1, 1, 2])
 
     with col_ai:
         st.markdown("#### 🤖 Dữ liệu AI")
@@ -1648,6 +1706,14 @@ with tab_dashboard:
     with col_sample:
         st.markdown("#### 🎯 Dữ liệu Mẫu")
         use_sample = st.button("📊 Dữ liệu Demo", use_container_width=True, type="secondary")
+
+    with col_upload:
+        st.markdown("#### 📂 Tải lên Dữ liệu GSO")
+        uploaded_gso = st.file_uploader(
+            "Chọn file CSV hoặc Excel chứa dữ liệu GSO",
+            type=['csv', 'xlsx'],
+            key="gso_upload"
+        )
 
     # Biến lưu DataFrame
     gso_data = None
@@ -1954,6 +2020,28 @@ with tab_dashboard:
 
     else:
         st.info("💡 Vui lòng tải lên file dữ liệu GSO hoặc sử dụng dữ liệu mẫu để xem phân tích.")
+
+    # Nút lên đầu trang
+    st.markdown("""
+        <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
+            <a href='#' style='text-decoration: none;'>
+                <button style='
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    transition: all 0.3s ease;
+                '>
+                    ⬆️ Lên đầu trang
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
 
 # ========================================
 # PREMIUM BANKING FOOTER
