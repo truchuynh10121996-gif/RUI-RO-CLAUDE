@@ -659,7 +659,7 @@ if uploaded_file is not None:
 # THAY ĐỔI 4: Vị trí Tabs được giữ nguyên, CSS mới sẽ đảm bảo Tabs có màu
 # ------------------------------------------------------------------------------------------------
 tab_predict, tab_build, tab_goal = st.tabs([
-    "🚀 TẢI HỒ SƠ ĐỂ DỰ BÁO", 
+    "🚀 Sử dụng mô hình dự báo", 
     "🛠️ Xây dựng mô hình", 
     "🎯 Mục tiêu của mô hình"
 ])
