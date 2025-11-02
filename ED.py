@@ -1672,7 +1672,7 @@ with tab_dashboard:
         with st.expander("📖 Hướng dẫn sử dụng các nguồn dữ liệu"):
             st.markdown("""
             **🚀 Tự động lấy từ Gemini AI (Khuyến nghị):**
-            - Nhấn nút **"Lấy từ Gemini AI"** để tự động lấy dữ liệu mới nhất
+            - Nhấn nút **"Bấm để tạo"** để tự động lấy dữ liệu mới nhất
             - Dữ liệu được cache 30 ngày, tự động cập nhật mỗi tháng
             - Nguồn dữ liệu: GSO, Bộ KH&ĐT, báo cáo kinh tế vĩ mô
 
@@ -1699,8 +1699,8 @@ with tab_dashboard:
     col_ai, col_sample, col_upload = st.columns([1, 1, 2])
 
     with col_ai:
-        st.markdown("#### 🤖 Dữ liệu AI")
-        use_ai_data = st.button("🚀 Lấy từ Gemini AI", use_container_width=True, type="primary",
+        st.markdown("#### 🤖 Dữ liệu lấy từ Gemini AI")
+        use_ai_data = st.button("🚀 Bấm để tạo", use_container_width=True, type="primary",
                                 help="Tự động lấy dữ liệu tài chính doanh nghiệp VN mới nhất từ Gemini AI")
 
     with col_sample:
