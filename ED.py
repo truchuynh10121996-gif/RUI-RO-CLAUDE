@@ -882,10 +882,12 @@ if uploaded_file is not None:
 # Định nghĩa các Tabs
 # ------------------------------------------------------------------------------------------------
 # THAY ĐỔI 4: Vị trí Tabs được giữ nguyên, CSS mới sẽ đảm bảo Tabs có màu
+# Tab mới: Dashboard tài chính doanh nghiệp (GSO)
 # ------------------------------------------------------------------------------------------------
-tab_predict, tab_build, tab_goal = st.tabs([
-    "🚀 Sử dụng mô hình dự báo", 
-    "🛠️ Xây dựng mô hình", 
+tab_predict, tab_dashboard, tab_build, tab_goal = st.tabs([
+    "🚀 Sử dụng mô hình dự báo",
+    "📊 Dashboard tài chính doanh nghiệp",
+    "🛠️ Xây dựng mô hình",
     "🎯 Mục tiêu của mô hình"
 ])
 
@@ -1480,6 +1482,343 @@ with tab_predict:
 
     else:
         st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14, dự báo PD và phân tích AI.")
+
+# ========================================
+# TAB: DASHBOARD TÀI CHÍNH DOANH NGHIỆP (GSO)
+# ========================================
+with tab_dashboard:
+    st.header("📊 Dashboard Tài chính Doanh nghiệp Việt Nam")
+    st.markdown("""
+    Dashboard này hiển thị các xu hướng tài chính của doanh nghiệp Việt Nam theo quý,
+    dựa trên dữ liệu từ **Tổng cục Thống kê (GSO) - General Statistics Office of Vietnam**.
+    """)
+
+    st.divider()
+
+    # Khu vực upload và hướng dẫn
+    info_container = st.container(border=True)
+    with info_container:
+        st.markdown("### 📥 Nguồn Dữ liệu")
+        st.info("""
+        **Hướng dẫn lấy dữ liệu từ GSO:**
+        1. Truy cập: [https://gso.gov.vn](https://gso.gov.vn)
+        2. Chọn mục **Số liệu thống kê** → **Doanh nghiệp**
+        3. Tải về file Excel/CSV chứa dữ liệu theo quý
+        4. Upload file vào đây để phân tích và trực quan hóa
+
+        **Định dạng file yêu cầu:**
+        - File CSV hoặc Excel (.xlsx)
+        - Cột **Quý/Năm** (ví dụ: Q1-2023, Q2-2023...)
+        - Cột **Doanh thu** (đơn vị: tỷ đồng)
+        - Cột **Tổng tài sản** (đơn vị: tỷ đồng)
+        - Các cột khác: Lợi nhuận, Nợ phải trả, VCSH... (tùy chọn)
+        """)
+
+    st.divider()
+
+    # Upload file hoặc sử dụng dữ liệu mẫu
+    col_upload, col_sample = st.columns([2, 1])
+
+    with col_upload:
+        st.markdown("#### 📂 Tải lên Dữ liệu GSO")
+        uploaded_gso = st.file_uploader(
+            "Chọn file CSV hoặc Excel chứa dữ liệu GSO",
+            type=['csv', 'xlsx'],
+            key="gso_upload"
+        )
+
+    with col_sample:
+        st.markdown("#### 🎯 Dữ liệu Mẫu")
+        use_sample = st.button("📊 Sử dụng Dữ liệu Mẫu", use_container_width=True, type="primary")
+
+    # Biến lưu DataFrame
+    gso_data = None
+
+    # Xử lý upload file
+    if uploaded_gso is not None:
+        try:
+            with st.spinner('Đang đọc dữ liệu từ file...'):
+                if uploaded_gso.name.endswith('.csv'):
+                    gso_data = pd.read_csv(uploaded_gso)
+                else:
+                    gso_data = pd.read_excel(uploaded_gso)
+            st.success(f"✅ Đã tải thành công file: **{uploaded_gso.name}**")
+        except Exception as e:
+            st.error(f"❌ Lỗi khi đọc file: {e}")
+
+    # Hoặc sử dụng dữ liệu mẫu
+    elif use_sample:
+        st.info("📊 Đang sử dụng dữ liệu mẫu từ GSO (Demo)")
+        # Tạo dữ liệu mẫu (giả lập dữ liệu thực từ GSO)
+        quarters = [
+            'Q1-2021', 'Q2-2021', 'Q3-2021', 'Q4-2021',
+            'Q1-2022', 'Q2-2022', 'Q3-2022', 'Q4-2022',
+            'Q1-2023', 'Q2-2023', 'Q3-2023', 'Q4-2023',
+            'Q1-2024', 'Q2-2024', 'Q3-2024'
+        ]
+
+        # Dữ liệu giả lập (xu hướng tăng trưởng)
+        np.random.seed(42)
+        base_revenue = 5000
+        base_assets = 8000
+        base_profit = 500
+        base_debt = 3500
+
+        revenues = [base_revenue + i*150 + np.random.randint(-100, 200) for i in range(len(quarters))]
+        assets = [base_assets + i*200 + np.random.randint(-150, 250) for i in range(len(quarters))]
+        profits = [base_profit + i*30 + np.random.randint(-50, 80) for i in range(len(quarters))]
+        debts = [base_debt + i*80 + np.random.randint(-100, 150) for i in range(len(quarters))]
+        equity = [assets[i] - debts[i] for i in range(len(quarters))]
+
+        gso_data = pd.DataFrame({
+            'Quý': quarters,
+            'Doanh thu (tỷ VNĐ)': revenues,
+            'Tổng tài sản (tỷ VNĐ)': assets,
+            'Lợi nhuận (tỷ VNĐ)': profits,
+            'Nợ phải trả (tỷ VNĐ)': debts,
+            'VCSH (tỷ VNĐ)': equity
+        })
+
+    # Hiển thị và phân tích dữ liệu nếu có
+    if gso_data is not None:
+        st.divider()
+        st.markdown("### 📈 Dữ liệu và Phân tích")
+
+        # Hiển thị dữ liệu thô
+        with st.expander("🔍 Xem Dữ liệu Thô"):
+            st.dataframe(gso_data, use_container_width=True)
+
+            # Thống kê mô tả
+            st.markdown("#### Thống kê Mô tả")
+            st.dataframe(gso_data.describe(), use_container_width=True)
+
+        st.divider()
+
+        # Phần trực quan hóa
+        st.markdown("### 📊 Trực Quan Hóa Xu Hướng Tài Chính")
+
+        # Kiểm tra các cột cần thiết
+        required_cols = ['Quý', 'Doanh thu (tỷ VNĐ)', 'Tổng tài sản (tỷ VNĐ)']
+        missing_cols = [col for col in required_cols if col not in gso_data.columns]
+
+        if missing_cols:
+            st.warning(f"⚠️ File dữ liệu thiếu các cột: {', '.join(missing_cols)}. Vui lòng đảm bảo file có đủ các cột yêu cầu.")
+        else:
+            # Biểu đồ 1: Xu hướng Doanh thu theo quý
+            st.markdown("#### 💰 Xu hướng Doanh thu theo Quý")
+            fig1, ax1 = plt.subplots(figsize=(14, 6))
+            fig1.patch.set_facecolor('#fff5f7')
+            ax1.set_facecolor('#ffffff')
+
+            # Vẽ đường xu hướng doanh thu
+            ax1.plot(gso_data['Quý'], gso_data['Doanh thu (tỷ VNĐ)'],
+                    marker='o', linewidth=3, markersize=8, color='#ff6b9d',
+                    label='Doanh thu', linestyle='-', alpha=0.9)
+
+            # Fill area under curve
+            ax1.fill_between(gso_data['Quý'], gso_data['Doanh thu (tỷ VNĐ)'],
+                            alpha=0.2, color='#ffb3c6')
+
+            # Styling
+            ax1.set_xlabel('Quý', fontsize=13, fontweight='600', color='#4a5568')
+            ax1.set_ylabel('Doanh thu (tỷ VNĐ)', fontsize=13, fontweight='600', color='#4a5568')
+            ax1.set_title('Xu hướng Doanh thu Doanh nghiệp Việt Nam theo Quý',
+                         fontsize=16, fontweight='bold', color='#c2185b', pad=20)
+            ax1.grid(True, alpha=0.2, linestyle='--', linewidth=0.8, color='#ff6b9d')
+            ax1.legend(fontsize=11, frameon=True, shadow=True)
+
+            # Xoay labels trục x
+            plt.xticks(rotation=45, ha='right')
+
+            # Remove top and right spines
+            ax1.spines['top'].set_visible(False)
+            ax1.spines['right'].set_visible(False)
+            ax1.spines['left'].set_color('#d0d0d0')
+            ax1.spines['bottom'].set_color('#d0d0d0')
+
+            plt.tight_layout()
+            st.pyplot(fig1)
+            plt.close(fig1)
+
+            st.divider()
+
+            # Biểu đồ 2: So sánh Doanh thu và Tổng tài sản
+            st.markdown("#### 🏢 So sánh Doanh thu và Tổng Tài sản")
+            fig2, ax2 = plt.subplots(figsize=(14, 6))
+            fig2.patch.set_facecolor('#fff5f7')
+            ax2.set_facecolor('#ffffff')
+
+            # Vẽ 2 đường xu hướng
+            ax2.plot(gso_data['Quý'], gso_data['Doanh thu (tỷ VNĐ)'],
+                    marker='o', linewidth=2.5, markersize=7, color='#ff6b9d',
+                    label='Doanh thu', linestyle='-', alpha=0.9)
+
+            ax2.plot(gso_data['Quý'], gso_data['Tổng tài sản (tỷ VNĐ)'],
+                    marker='s', linewidth=2.5, markersize=7, color='#4a90e2',
+                    label='Tổng tài sản', linestyle='-', alpha=0.9)
+
+            # Styling
+            ax2.set_xlabel('Quý', fontsize=13, fontweight='600', color='#4a5568')
+            ax2.set_ylabel('Giá trị (tỷ VNĐ)', fontsize=13, fontweight='600', color='#4a5568')
+            ax2.set_title('So sánh Doanh thu và Tổng Tài sản theo Quý',
+                         fontsize=16, fontweight='bold', color='#c2185b', pad=20)
+            ax2.grid(True, alpha=0.2, linestyle='--', linewidth=0.8, color='#ff6b9d')
+            ax2.legend(fontsize=11, frameon=True, shadow=True, loc='upper left')
+
+            plt.xticks(rotation=45, ha='right')
+
+            ax2.spines['top'].set_visible(False)
+            ax2.spines['right'].set_visible(False)
+            ax2.spines['left'].set_color('#d0d0d0')
+            ax2.spines['bottom'].set_color('#d0d0d0')
+
+            plt.tight_layout()
+            st.pyplot(fig2)
+            plt.close(fig2)
+
+            st.divider()
+
+            # Biểu đồ 3: Biểu đồ cột so sánh các chỉ số (nếu có đủ cột)
+            optional_cols = ['Lợi nhuận (tỷ VNĐ)', 'Nợ phải trả (tỷ VNĐ)', 'VCSH (tỷ VNĐ)']
+            available_optional = [col for col in optional_cols if col in gso_data.columns]
+
+            if available_optional:
+                st.markdown("#### 📊 Phân tích Chi tiết các Chỉ số Tài chính")
+
+                # Chọn quý để so sánh
+                selected_quarters = st.multiselect(
+                    "🔍 Chọn các quý để so sánh:",
+                    options=gso_data['Quý'].tolist(),
+                    default=gso_data['Quý'].tolist()[-4:],  # Mặc định 4 quý gần nhất
+                    key="quarter_selector"
+                )
+
+                if selected_quarters:
+                    filtered_data = gso_data[gso_data['Quý'].isin(selected_quarters)]
+
+                    # Tạo biểu đồ cột nhóm
+                    fig3, ax3 = plt.subplots(figsize=(14, 7))
+                    fig3.patch.set_facecolor('#fff5f7')
+                    ax3.set_facecolor('#ffffff')
+
+                    # Số lượng quý và chỉ số
+                    n_quarters = len(selected_quarters)
+                    n_indicators = len(available_optional)
+
+                    # Vị trí các cột
+                    x = np.arange(n_quarters)
+                    width = 0.25  # Độ rộng mỗi cột
+
+                    # Màu sắc cho các chỉ số
+                    colors = ['#ff6b9d', '#4a90e2', '#50c878']
+
+                    # Vẽ các cột
+                    for i, col in enumerate(available_optional):
+                        offset = (i - n_indicators/2 + 0.5) * width
+                        ax3.bar(x + offset, filtered_data[col], width,
+                               label=col.replace(' (tỷ VNĐ)', ''),
+                               color=colors[i % len(colors)], alpha=0.8,
+                               edgecolor='white', linewidth=1.5)
+
+                    # Styling
+                    ax3.set_xlabel('Quý', fontsize=13, fontweight='600', color='#4a5568')
+                    ax3.set_ylabel('Giá trị (tỷ VNĐ)', fontsize=13, fontweight='600', color='#4a5568')
+                    ax3.set_title('So sánh các Chỉ số Tài chính theo Quý',
+                                 fontsize=16, fontweight='bold', color='#c2185b', pad=20)
+                    ax3.set_xticks(x)
+                    ax3.set_xticklabels(selected_quarters, rotation=45, ha='right')
+                    ax3.legend(fontsize=11, frameon=True, shadow=True)
+                    ax3.grid(True, alpha=0.2, linestyle='--', linewidth=0.8, color='#ff6b9d', axis='y')
+
+                    ax3.spines['top'].set_visible(False)
+                    ax3.spines['right'].set_visible(False)
+                    ax3.spines['left'].set_color('#d0d0d0')
+                    ax3.spines['bottom'].set_color('#d0d0d0')
+
+                    plt.tight_layout()
+                    st.pyplot(fig3)
+                    plt.close(fig3)
+
+            st.divider()
+
+            # Phần thống kê tổng quan
+            st.markdown("### 📈 Thống Kê Tổng Quan")
+
+            metric_col1, metric_col2, metric_col3, metric_col4 = st.columns(4)
+
+            with metric_col1:
+                avg_revenue = gso_data['Doanh thu (tỷ VNĐ)'].mean()
+                st.metric(
+                    label="Doanh thu TB",
+                    value=f"{avg_revenue:,.0f} tỷ",
+                    delta=f"{gso_data['Doanh thu (tỷ VNĐ)'].iloc[-1] - gso_data['Doanh thu (tỷ VNĐ)'].iloc[0]:,.0f} tỷ",
+                    delta_color="normal"
+                )
+
+            with metric_col2:
+                avg_assets = gso_data['Tổng tài sản (tỷ VNĐ)'].mean()
+                st.metric(
+                    label="Tổng TS TB",
+                    value=f"{avg_assets:,.0f} tỷ",
+                    delta=f"{gso_data['Tổng tài sản (tỷ VNĐ)'].iloc[-1] - gso_data['Tổng tài sản (tỷ VNĐ)'].iloc[0]:,.0f} tỷ",
+                    delta_color="normal"
+                )
+
+            if 'Lợi nhuận (tỷ VNĐ)' in gso_data.columns:
+                with metric_col3:
+                    avg_profit = gso_data['Lợi nhuận (tỷ VNĐ)'].mean()
+                    st.metric(
+                        label="Lợi nhuận TB",
+                        value=f"{avg_profit:,.0f} tỷ",
+                        delta=f"{gso_data['Lợi nhuận (tỷ VNĐ)'].iloc[-1] - gso_data['Lợi nhuận (tỷ VNĐ)'].iloc[0]:,.0f} tỷ",
+                        delta_color="normal"
+                    )
+
+            if 'VCSH (tỷ VNĐ)' in gso_data.columns:
+                with metric_col4:
+                    avg_equity = gso_data['VCSH (tỷ VNĐ)'].mean()
+                    st.metric(
+                        label="VCSH TB",
+                        value=f"{avg_equity:,.0f} tỷ",
+                        delta=f"{gso_data['VCSH (tỷ VNĐ)'].iloc[-1] - gso_data['VCSH (tỷ VNĐ)'].iloc[0]:,.0f} tỷ",
+                        delta_color="normal"
+                    )
+
+            st.divider()
+
+            # Kết luận và Insights
+            st.markdown("### 💡 Nhận xét và Insights")
+
+            insights_container = st.container(border=True)
+            with insights_container:
+                # Tính toán tốc độ tăng trưởng
+                revenue_growth = ((gso_data['Doanh thu (tỷ VNĐ)'].iloc[-1] - gso_data['Doanh thu (tỷ VNĐ)'].iloc[0]) / gso_data['Doanh thu (tỷ VNĐ)'].iloc[0]) * 100
+                assets_growth = ((gso_data['Tổng tài sản (tỷ VNĐ)'].iloc[-1] - gso_data['Tổng tài sản (tỷ VNĐ)'].iloc[0]) / gso_data['Tổng tài sản (tỷ VNĐ)'].iloc[0]) * 100
+
+                st.markdown(f"""
+                **Xu hướng Tăng trưởng:**
+                - 📈 **Doanh thu**: Tăng trưởng **{revenue_growth:.1f}%** từ quý đầu đến quý cuối
+                - 🏢 **Tổng tài sản**: Tăng trưởng **{assets_growth:.1f}%** từ quý đầu đến quý cuối
+
+                **Đánh giá:**
+                """)
+
+                if revenue_growth > 10:
+                    st.success("✅ Doanh nghiệp có xu hướng tăng trưởng doanh thu tốt (>10%)")
+                elif revenue_growth > 0:
+                    st.info("💡 Doanh nghiệp có tăng trưởng doanh thu nhẹ")
+                else:
+                    st.warning("⚠️ Doanh nghiệp có xu hướng giảm doanh thu, cần xem xét kỹ")
+
+                if assets_growth > 15:
+                    st.success("✅ Quy mô tài sản tăng trưởng mạnh (>15%)")
+                elif assets_growth > 0:
+                    st.info("💡 Quy mô tài sản có tăng trưởng")
+                else:
+                    st.warning("⚠️ Quy mô tài sản giảm, cần phân tích nguyên nhân")
+
+    else:
+        st.info("💡 Vui lòng tải lên file dữ liệu GSO hoặc sử dụng dữ liệu mẫu để xem phân tích.")
 
 # ========================================
 # PREMIUM BANKING FOOTER
