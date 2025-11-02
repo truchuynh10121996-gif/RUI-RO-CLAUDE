@@ -1233,10 +1233,10 @@ with tab_predict:
             values = ratios_display['Giá trị'].values
 
             # Tạo màu gradient cho các bars
-            colors = plt.cm.RdPu(np.linspace(0.3, 0.9, len(indicators)))
+            bar_colors = plt.cm.RdPu(np.linspace(0.3, 0.9, len(indicators)))
 
             # Vẽ horizontal bar chart
-            bars = ax_bar.barh(indicators, values, color=colors, edgecolor='white', linewidth=1.5)
+            bars = ax_bar.barh(indicators, values, color=bar_colors, edgecolor='white', linewidth=1.5)
 
             # Thêm giá trị vào cuối mỗi bar
             for i, (bar, val) in enumerate(zip(bars, values)):
@@ -1392,9 +1392,9 @@ with tab_predict:
 
                             indicators_export = ratios_display.index.tolist()
                             values_export = ratios_display['Giá trị'].values
-                            colors_export = plt.cm.RdPu(np.linspace(0.3, 0.9, len(indicators_export)))
+                            bar_colors_export = plt.cm.RdPu(np.linspace(0.3, 0.9, len(indicators_export)))
 
-                            bars_export = ax_bar_export.barh(indicators_export, values_export, color=colors_export, edgecolor='white', linewidth=1.5)
+                            bars_export = ax_bar_export.barh(indicators_export, values_export, color=bar_colors_export, edgecolor='white', linewidth=1.5)
 
                             for i, (bar, val) in enumerate(zip(bars_export, values_export)):
                                 width = bar.get_width()
