@@ -44,129 +44,389 @@ MODEL_NAME = "gemini-2.5-flash"
 # CẤU HÌNH TRANG (NÂNG CẤP GIAO DIỆN)
 # =========================
 st.set_page_config(
-    page_title="Credit Risk PD & Gemini Analysis",
-    page_icon="🏛️",
-    layout="wide", # <--- Giữ nguyên layout wide
+    page_title="Credit Risk PD & Gemini Analysis | Banking Suite",
+    page_icon="🏦",
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Thêm CSS tùy chỉnh cho MÀU SẮC, PHÔNG CHỮ, HIỆU ỨNG ĐỘNG
+# ========================================
+# CSS NÂNG CẤP - PHONG CÁCH NGÂN HÀNG HIỆN ĐẠI
+# ========================================
 st.markdown("""
 <style>
-/* Ẩn menu và footer mặc định */
+/* ========== IMPORT GOOGLE FONTS ========== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Playfair+Display:wght@700;900&display=swap');
+
+/* ========== GENERAL SETTINGS ========== */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 
-/* Thiết lập font chữ và màu nền tổng thể */
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* ------------------------------------------------------------------------------------------------
-| THAY ĐỔI 1: Dải Banner Cho Tiêu đề Chính (Đảm bảo Canh giữa, Màu sắc và Hiệu ứng nhẹ)
------------------------------------------------------------------------------------------------- */
+/* Main content area */
+.main {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8f4f8 100%);
+    animation: fadeIn 0.8s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== PREMIUM HEADER BANNER ========== */
 .banner-title-container {
-    background: linear-gradient(90deg, #e0f0ff, #f7f9fc, #e0f0ff); /* Màu chuyển sắc nhẹ nhàng */
-    padding: 20px 30px; /* Tăng padding để làm dải banner dày hơn */
-    border-radius: 10px; /* Bo góc nhẹ */
-    box-shadow: 0 4px 12px rgba(0, 76, 153, 0.1); /* Shadow nhẹ nhàng, chuyên nghiệp */
-    margin-bottom: 20px; /* Khoảng cách với nội dung bên dưới */
-    text-align: center; /* **CANH GIỮA TIÊU ĐỀ** */
-}
-/* Đảm bảo h1 trong banner sử dụng màu sắc đồng bộ và animation */
-.banner-title-container h1 {
-    color: #004c99 !important; /* Xanh Navy Đậm cho tiêu đề */
-    font-weight: 900 !important;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-    animation: wave 2s infinite alternate; /* **THÊM CHUYỂN ĐỘNG NHẸ** */
+    background: linear-gradient(135deg, #003d82 0%, #0066cc 50%, #003d82 100%);
+    padding: 40px 50px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 61, 130, 0.3),
+                0 5px 15px rgba(0, 102, 204, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    margin-bottom: 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
 }
 
-@keyframes wave {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
+/* Shine effect */
+.banner-title-container::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 70%
+    );
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.banner-title-container h1 {
+    color: #ffffff !important;
+    font-family: 'Playfair Display', serif !important;
+    font-weight: 900 !important;
+    font-size: 2.8rem !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3),
+                 0 0 30px rgba(212, 175, 55, 0.3);
+    margin-bottom: 10px !important;
+    letter-spacing: -0.5px;
+    position: relative;
+    z-index: 1;
+    animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+    from { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(212, 175, 55, 0.3); }
+    to { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 40px rgba(212, 175, 55, 0.5); }
 }
 
 .banner-title-container h3 {
-    color: #1a75ff !important; /* Xanh tươi hơn cho tiêu đề phụ */
+    color: #d4af37 !important;
     font-weight: 600 !important;
-    margin-top: -10px;
-    border-bottom: none;
-}
-/* ------------------------------------------------------------------------------------------------ */
-
-/* Tiêu đề cấp 2 (Sub-header) */
-h3 {
-    color: #1a75ff; /* Xanh tươi hơn */
-    border-bottom: 2px solid #e0f0ff;
-    padding-bottom: 5px;
+    font-size: 1.3rem !important;
+    margin-top: 0 !important;
+    border-bottom: none !important;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    position: relative;
+    z-index: 1;
 }
 
-/* Thẻ chính metrics - Thiết kế box hiện đại */
-div[data-testid="metric-container"] {
-    border: 1px solid #1a75ff; /* Border nổi bật */
-    border-radius: 12px;
-    padding: 10px;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0.15);
-    background-color: #f7f9fc;
+/* Gold accent line */
+.banner-title-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    z-index: 1;
 }
 
-/* ------------------------------------------------------------------------------------------------
-| THAY ĐỔI 2: Styling cho Tabs Ngang (Thêm màu và hiệu ứng)
------------------------------------------------------------------------------------------------- */
-/* Style cho từng nút Tab (chưa được chọn) */
-button[data-testid="stTab"] {
-    background-color: #f7f9fc; /* Nền nhẹ */
-    border: 1px solid #d3e0f0;
-    border-radius: 8px 8px 0 0 !important; /* Bo góc trên */
-    transition: all 0.3s ease;
-    font-weight: 600;
-    color: #4b5563; /* Màu chữ xám */
-    padding: 10px 20px;
-    margin-right: 5px;
-}
-
-/* Hiệu ứng Hover */
-button[data-testid="stTab"]:hover {
-    background-color: #e0f0ff; /* Xanh nhẹ khi hover */
-    color: #004c99; /* Xanh đậm hơn */
-    border-color: #1a75ff;
-    transform: translateY(-2px); /* Hiệu ứng nhấc lên nhẹ */
-}
-
-/* Style cho Tab đang được chọn (Active) */
-button[data-testid="stTab"][aria-selected="true"] {
-    background-color: #1a75ff !important; /* Màu xanh nổi bật */
-    color: white !important; /* Chữ trắng */
-    border-color: #1a75ff !important;
-    border-bottom: 2px solid white !important;
-    box-shadow: 0 4px 8px rgba(26, 117, 255, 0.3); /* Thêm shadow nhẹ */
-    transform: translateY(0px); /* Đảm bảo không bị nhấc lên */
-}
-/* ------------------------------------------------------------------------------------------------ */
-
-/* Sidebar - Làm nổi bật phần upload file */
+/* ========== SIDEBAR PREMIUM STYLING ========== */
 [data-testid="stSidebar"] {
-    background-color: #e0f0ff; /* Xanh nhạt cho sidebar */
-}
-div[data-testid="stFileUploader"] {
-    border: 2px dashed #004c99;
-    border-radius: 10px;
-    padding: 15px;
-    margin-top: 10px;
+    background: linear-gradient(180deg, #003d82 0%, #002850 100%) !important;
+    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Nút bấm Phân tích AI - Hiệu ứng nhấn */
+[data-testid="stSidebar"] * {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebar"] .stMarkdown {
+    color: #e8f4f8 !important;
+}
+
+/* File uploader trong sidebar */
+div[data-testid="stFileUploader"] {
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px dashed #d4af37 !important;
+    border-radius: 15px;
+    padding: 20px;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+}
+
+div[data-testid="stFileUploader"]:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #ffd700 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+}
+
+/* ========== TABS PREMIUM DESIGN ========== */
+button[data-testid="stTab"] {
+    background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+    border: 2px solid #e0e6ed;
+    border-radius: 12px 12px 0 0 !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 700;
+    font-size: 1rem;
+    color: #4a5568;
+    padding: 15px 30px;
+    margin-right: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+button[data-testid="stTab"]:hover {
+    background: linear-gradient(135deg, #e8f4f8 0%, #d4e8f0 100%);
+    color: #003d82;
+    border-color: #0066cc;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 102, 204, 0.2);
+}
+
+button[data-testid="stTab"][aria-selected="true"] {
+    background: linear-gradient(135deg, #003d82 0%, #0066cc 100%) !important;
+    color: #ffffff !important;
+    border-color: #d4af37 !important;
+    border-bottom: 3px solid #d4af37 !important;
+    box-shadow: 0 8px 20px rgba(0, 61, 130, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px);
+}
+
+/* ========== HEADINGS ========== */
+h1, h2, h3, h4 {
+    color: #1a2332 !important;
+    font-weight: 700 !important;
+}
+
+h2 {
+    color: #003d82 !important;
+    border-bottom: 3px solid #d4af37;
+    padding-bottom: 10px;
+    margin-bottom: 20px !important;
+}
+
+h3 {
+    color: #0066cc !important;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+    padding-bottom: 8px;
+    margin-bottom: 15px !important;
+}
+
+/* ========== METRIC CONTAINERS ========== */
+div[data-testid="metric-container"] {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border: 2px solid transparent;
+    border-image: linear-gradient(135deg, #d4af37, #0066cc) 1;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 25px rgba(0, 61, 130, 0.12),
+                0 3px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+}
+
+div[data-testid="metric-container"]:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(0, 61, 130, 0.2),
+                0 5px 15px rgba(212, 175, 55, 0.15);
+}
+
+/* Metric label */
+div[data-testid="metric-container"] label {
+    font-weight: 700 !important;
+    color: #003d82 !important;
+    font-size: 0.9rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Metric value */
+div[data-testid="metric-container"] [data-testid="stMetricValue"] {
+    color: #0066cc !important;
+    font-weight: 900 !important;
+    font-size: 2.2rem !important;
+}
+
+/* ========== BUTTONS PREMIUM ========== */
 button[kind="primary"] {
-    background-color: #1a75ff;
-    border-color: #1a75ff;
-    transition: background-color 0.3s ease, transform 0.1s ease;
+    background: linear-gradient(135deg, #003d82 0%, #0066cc 100%) !important;
+    border: 2px solid #d4af37 !important;
+    border-radius: 12px !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 1.05rem !important;
+    padding: 12px 30px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: 0 6px 20px rgba(0, 61, 130, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
+
 button[kind="primary"]:hover {
-    background-color: #004c99;
-    border-color: #004c99;
+    background: linear-gradient(135deg, #002850 0%, #004a99 100%) !important;
+    border-color: #ffd700 !important;
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 61, 130, 0.4),
+                0 5px 15px rgba(212, 175, 55, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
+
 button[kind="primary"]:active {
-    transform: scale(0.98);
+    transform: translateY(0) scale(0.98);
+}
+
+/* ========== CONTAINERS & CARDS ========== */
+div[data-testid="stContainer"] {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 61, 130, 0.1);
+}
+
+/* Expander */
+div[data-testid="stExpander"] {
+    background: #ffffff;
+    border: 2px solid #e0e6ed;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+div[data-testid="stExpander"]:hover {
+    border-color: #0066cc;
+    box-shadow: 0 4px 15px rgba(0, 102, 204, 0.15);
+}
+
+/* ========== DATAFRAMES ========== */
+div[data-testid="stDataFrame"] {
+    border: 2px solid #e0e6ed;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* ========== INFO/WARNING/ERROR BOXES ========== */
+div[data-baseweb="notification"] {
+    border-radius: 12px;
+    border-left-width: 5px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 20px !important;
+}
+
+/* Info box */
+div[data-baseweb="notification"][data-testid*="stInfo"] {
+    background: linear-gradient(135deg, #e8f4f8 0%, #d4e8f0 100%);
+    border-left-color: #0066cc !important;
+}
+
+/* Success box */
+div[data-baseweb="notification"][data-testid*="stSuccess"] {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-left-color: #28a745 !important;
+}
+
+/* Warning box */
+div[data-baseweb="notification"][data-testid*="stWarning"] {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+    border-left-color: #ffc107 !important;
+}
+
+/* Error box */
+div[data-baseweb="notification"][data-testid*="stError"] {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-left-color: #dc3545 !important;
+}
+
+/* ========== DIVIDER ========== */
+hr {
+    border: none;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    margin: 30px 0;
+}
+
+/* ========== PROGRESS BAR ========== */
+div[data-testid="stProgress"] > div {
+    background: linear-gradient(90deg, #003d82, #0066cc, #d4af37);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 102, 204, 0.3);
+}
+
+/* ========== SPINNER ========== */
+div[data-testid="stSpinner"] > div {
+    border-top-color: #d4af37 !important;
+}
+
+/* ========== TOOLTIPS & CAPTIONS ========== */
+.stCaption {
+    color: #6b7280 !important;
+    font-weight: 500 !important;
+}
+
+/* ========== RESPONSIVE ENHANCEMENTS ========== */
+@media (max-width: 768px) {
+    .banner-title-container {
+        padding: 25px 20px;
+    }
+
+    .banner-title-container h1 {
+        font-size: 2rem !important;
+    }
+
+    button[data-testid="stTab"] {
+        padding: 10px 15px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ========== SCROLL BAR ========== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f5f7fa;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #003d82, #0066cc);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #002850, #004a99);
 }
 
 </style>
@@ -359,14 +619,26 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
 # =========================
 np.random.seed(0)
 
-# ------------------------------------------------------------------------------------------------
-# THAY ĐỔI 3: Áp dụng dải banner CSS đã tạo (banner rộng hơn, canh giữa và có animation)
-# ------------------------------------------------------------------------------------------------
+# ========================================
+# PREMIUM BANKING HEADER
+# ========================================
 st.markdown('<div class="banner-title-container">', unsafe_allow_html=True)
-st.title("🏛️ HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP")
-st.write("### Dự báo Xác suất Vỡ nợ (PD) & Phân tích Tài chính nâng cao")
+
+# Thêm logo nếu có (optional)
+col_logo, col_title = st.columns([1, 5])
+with col_logo:
+    try:
+        st.image("logo-agribank.jpg", width=120)
+    except:
+        st.markdown("🏦")
+
+with col_title:
+    st.markdown("""
+        <h1 style='margin: 0; padding: 0;'>HỆ THỐNG ĐÁNH GIÁ RỦI RO TÍN DỤNG</h1>
+        <h3 style='margin: 5px 0 0 0;'>Dự báo Xác suất Vỡ nợ (PD) & Phân tích AI Chuyên sâu</h3>
+    """, unsafe_allow_html=True)
+
 st.markdown('</div>', unsafe_allow_html=True)
-# ------------------------------------------------------------------------------------------------
 
 # Load dữ liệu huấn luyện (CSV có default, X_1..X_14) - Giữ nguyên logic load data
 try:
@@ -471,14 +743,24 @@ with tab_goal:
     st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số $\text{X1}–\text{X14}$ (tính từ Bảng Cân đối Kế toán, Báo cáo Kết quả Kinh doanh và Báo cáo Lưu chuyển Tiền tệ).")
     
     with st.expander("🖼️ Mô tả trực quan mô hình"):
-        st.markdown("Đây là các hình ảnh minh họa cho mô hình Hồi quy Logistic và các giai đoạn đánh giá rủi ro.")
-        # # Thay thế 3 hình ảnh
-        for img in ["hinh2.jpg", "LogReg_1.png", "hinh3.png"]:
+        st.markdown("### Các hình ảnh minh họa cho mô hình Hồi quy Logistic và quy trình đánh giá rủi ro")
+
+        # Hiển thị hình ảnh trong columns để layout đẹp hơn
+        col_img1, col_img2 = st.columns(2)
+
+        for idx, img in enumerate(["hinh2.jpg", "LogReg_1.png", "hinh3.png"]):
             try:
-                # Dùng placeholder image nếu không tìm thấy file
-                st.image(f"https://placehold.co/800x400/004c99/ffffff?text={img.replace('.jpg', '').replace('.png', '').upper()}_PLACEHOLDER")
+                if idx == 0:
+                    with col_img1:
+                        st.image(img, caption=f"Mô tả {idx+1}: Quy trình đánh giá", use_container_width=True)
+                elif idx == 1:
+                    with col_img2:
+                        st.image(img, caption=f"Mô tả {idx+1}: Mô hình Logistic Regression", use_container_width=True)
+                else:
+                    st.image(img, caption=f"Mô tả {idx+1}: Kết quả phân tích", use_container_width=True)
             except Exception:
-                st.warning(f"Không tìm thấy {img}")
+                # Nếu không tìm thấy file, hiển thị message thân thiện
+                st.info(f"📊 Hình ảnh minh họa '{img}' sẽ được hiển thị ở đây")
 
 with tab_build:
     st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
@@ -507,13 +789,20 @@ with tab_build:
     st.markdown("##### Biểu đồ Phân tán (Scatter Plot) với Đường Hồi quy Logisitc")
     col = st.selectbox('🔍 Chọn biến X muốn vẽ', options=MODEL_COLS, index=0, key="select_build_col")
     
-    # Biểu đồ Scatter Plot và Đường Hồi quy Logisitc (GIỮ NGUYÊN LOGIC)
+    # Biểu đồ Scatter Plot và Đường Hồi quy Logisitc (GIỮ NGUYÊN LOGIC, CẢI THIỆN MÀU SẮC)
     if col in df.columns:
         try:
-            # Dùng Streamlit.pyplot để đảm bảo tích hợp tốt hơn
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.scatterplot(data=df, x=col, y='default', alpha=0.6, ax=ax, hue='default', palette=['#1a75ff', '#ff4b4b']) # Dùng màu sắc theme
-            
+            # Dùng Streamlit.pyplot với theme banking hiện đại
+            fig, ax = plt.subplots(figsize=(12, 7))
+
+            # Set background color
+            fig.patch.set_facecolor('#f8f9fa')
+            ax.set_facecolor('#ffffff')
+
+            # Scatter plot với màu sắc banking theme
+            sns.scatterplot(data=df, x=col, y='default', alpha=0.65, ax=ax, hue='default',
+                          palette=['#0066cc', '#d4af37'], s=80, edgecolor='white', linewidth=0.5)
+
             # Vẽ đường logistic regression theo 1 biến
             x_range = np.linspace(df[col].min(), df[col].max(), 100).reshape(-1, 1)
             X_temp = df[[col]].copy()
@@ -522,12 +811,27 @@ with tab_build:
             lr_temp.fit(X_temp, y_temp)
             x_test = pd.DataFrame({col: x_range[:, 0]})
             y_curve = lr_temp.predict_proba(x_test)[:, 1]
-            ax.plot(x_range, y_curve, color='#004c99', linewidth=3, label='Đường LogReg') # Màu xanh đậm
-            
-            ax.set_title(f'Quan hệ giữa {col} và Xác suất Vỡ nợ', fontsize=14)
-            ax.set_ylabel('Xác suất default (1: Default)', fontsize=12)
-            ax.set_xlabel(col, fontsize=12)
-            ax.legend(title='Default')
+            ax.plot(x_range, y_curve, color='#003d82', linewidth=4, label='Đường LogReg',
+                   linestyle='-', alpha=0.9)
+
+            # Styling cho tiêu đề và labels
+            ax.set_title(f'Quan hệ giữa {col} và Xác suất Vỡ nợ', fontsize=16, fontweight='bold', color='#003d82', pad=20)
+            ax.set_ylabel('Xác suất Default (0: Non-Default, 1: Default)', fontsize=13, fontweight='600', color='#4a5568')
+            ax.set_xlabel(col, fontsize=13, fontweight='600', color='#4a5568')
+
+            # Grid styling
+            ax.grid(True, alpha=0.2, linestyle='--', linewidth=0.8, color='#0066cc')
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.spines['left'].set_color('#d0d0d0')
+            ax.spines['bottom'].set_color('#d0d0d0')
+
+            # Legend styling
+            legend = ax.legend(title='Default Status', title_fontsize=11, fontsize=10,
+                             frameon=True, fancybox=True, shadow=True)
+            legend.get_frame().set_facecolor('#f8f9fa')
+            legend.get_frame().set_alpha(0.9)
+
             st.pyplot(fig)
             plt.close(fig)
         except Exception as e:
@@ -543,10 +847,24 @@ with tab_build:
     with col_cm:
         st.markdown("##### Ma trận Nhầm lẫn (Test Set)")
         cm = confusion_matrix(y_test, y_pred_out)
-        # Sử dụng cmap màu xanh đậm hơn để đồng bộ với theme
+
+        # Tạo custom colormap cho banking theme
+        from matplotlib.colors import LinearSegmentedColormap
+        colors_banking = ['#f8f9fa', '#e8f4f8', '#d4e8f0', '#0066cc', '#003d82']
+        n_bins = 100
+        cmap_banking = LinearSegmentedColormap.from_list('banking', colors_banking, N=n_bins)
+
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Default (0)', 'Default (1)'])
-        fig2, ax = plt.subplots(figsize=(6, 6))
-        disp.plot(ax=ax, cmap=plt.cm.get_cmap('Blues', 8)) 
+        fig2, ax = plt.subplots(figsize=(7, 7))
+        fig2.patch.set_facecolor('#f8f9fa')
+
+        disp.plot(ax=ax, cmap=cmap_banking, colorbar=True)
+
+        # Styling
+        ax.set_title('Ma trận Nhầm lẫn', fontsize=14, fontweight='bold', color='#003d82', pad=15)
+        ax.set_xlabel('Predicted Label', fontsize=12, fontweight='600', color='#4a5568')
+        ax.set_ylabel('True Label', fontsize=12, fontweight='600', color='#4a5568')
+
         st.pyplot(fig2)
         plt.close(fig2)
         
@@ -709,3 +1027,61 @@ with tab_predict:
 
     else:
         st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14, dự báo PD và phân tích AI.")
+
+# ========================================
+# PREMIUM BANKING FOOTER
+# ========================================
+st.markdown("---")
+footer_col1, footer_col2, footer_col3 = st.columns([2, 2, 1])
+
+with footer_col1:
+    st.markdown("""
+    <div style='padding: 15px; text-align: left;'>
+        <h4 style='color: #003d82; margin-bottom: 10px;'>🏦 Hệ Thống Đánh Giá Rủi Ro Tín Dụng</h4>
+        <p style='color: #6b7280; font-size: 0.9rem; margin: 5px 0;'>
+            Giải pháp AI tiên tiến cho phân tích tài chính doanh nghiệp
+        </p>
+        <p style='color: #6b7280; font-size: 0.85rem; margin: 5px 0;'>
+            Powered by <strong>Gemini AI</strong> & <strong>Machine Learning</strong>
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+with footer_col2:
+    st.markdown("""
+    <div style='padding: 15px; text-align: left;'>
+        <h4 style='color: #003d82; margin-bottom: 10px;'>📊 Tính Năng Chính</h4>
+        <ul style='color: #6b7280; font-size: 0.85rem; margin: 5px 0; padding-left: 20px;'>
+            <li>Phân tích 14 chỉ số tài chính tự động</li>
+            <li>Dự báo xác suất vỡ nợ (PD) chính xác</li>
+            <li>Khuyến nghị tín dụng từ Gemini AI</li>
+            <li>Trực quan hóa dữ liệu chuyên nghiệp</li>
+        </ul>
+    </div>
+    """, unsafe_allow_html=True)
+
+with footer_col3:
+    st.markdown(f"""
+    <div style='padding: 15px; text-align: center;'>
+        <div style='font-size: 3rem; margin-bottom: 10px;'>🏦</div>
+        <p style='color: #d4af37; font-weight: 700; font-size: 0.9rem; margin: 5px 0;'>
+            BANKING SUITE
+        </p>
+        <p style='color: #6b7280; font-size: 0.75rem;'>
+            Version 2.0 Premium
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown(f"""
+<div style='text-align: center; padding: 20px; margin-top: 20px;
+            background: linear-gradient(135deg, #003d82 0%, #0066cc 100%);
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 61, 130, 0.2);'>
+    <p style='color: #ffffff; margin: 5px 0; font-size: 0.9rem; font-weight: 600;'>
+        © {datetime.now().year} Credit Risk Assessment System | Developed with ❤️ using Streamlit
+    </p>
+    <p style='color: #d4af37; margin: 5px 0; font-size: 0.85rem;'>
+        🔒 Secure • 🚀 Fast • 🎯 Accurate • ✨ AI-Powered
+    </p>
+</div>
+""", unsafe_allow_html=True)
