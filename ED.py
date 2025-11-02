@@ -682,7 +682,7 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
 
     sys_prompt = (
         "Bạn là chuyên gia phân tích tín dụng doanh nghiệp tại ngân hàng. "
-        "Phân tích toàn diện dựa trên 14 chỉ số tài chính được cung cấp và PD nếu có. "
+        "Phân tích toàn diện dựa trên 14 chỉ số tài chính được cung cấp và PD (Xác suất vỡ nợ). Lưu ý: PD là yếu tố quan trọng nhất để xác định rủi ro tổng thể. "
         "Nêu rõ: (1) Khả năng sinh lời, (2) Thanh khoản, (3) Cơ cấu nợ, (4) Hiệu quả hoạt động. "
         "Kết thúc bằng khuyến nghị in hoa: CHO VAY hoặc KHÔNG CHO VAY, kèm 2–3 điều kiện nếu CHO VAY. "
         "Viết bằng tiếng Việt súc tích, chuyên nghiệp."
