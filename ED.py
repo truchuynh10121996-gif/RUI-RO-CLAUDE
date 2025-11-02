@@ -1682,7 +1682,7 @@ with tab_dashboard:
             3. Tải về file Excel/CSV chứa dữ liệu theo quý
             4. Upload file vào đây để phân tích
 
-            **📊 Dữ liệu Demo:**
+            **📊 Dùng Thử:**
             - Sử dụng dữ liệu mẫu để khám phá tính năng
 
             **Định dạng file yêu cầu (khi upload thủ công):**
@@ -1704,8 +1704,8 @@ with tab_dashboard:
                                 help="Tự động lấy dữ liệu tài chính doanh nghiệp VN mới nhất từ Gemini AI")
 
     with col_sample:
-        st.markdown("#### 🎯 Dữ liệu Mẫu")
-        use_sample = st.button("📊 Dữ liệu Demo", use_container_width=True, type="secondary")
+        st.markdown("#### 🎯 Demo Thử dữ liệu Mẫu")
+        use_sample = st.button("📊 Dùng Thử", use_container_width=True, type="secondary")
 
     with col_upload:
         st.markdown("#### 📂 Tải lên Dữ liệu GSO")
