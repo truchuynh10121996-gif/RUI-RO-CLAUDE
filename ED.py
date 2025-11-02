@@ -68,7 +68,7 @@ footer {visibility: hidden;}
 
 /* Main content area */
 .main {
-    background: linear-gradient(135deg, #f5f7fa 0%, #e8f4f8 100%);
+    background: linear-gradient(135deg, #fff5f7 0%, #ffe8f0 100%);
     animation: fadeIn 0.8s ease-in;
 }
 
@@ -79,11 +79,11 @@ footer {visibility: hidden;}
 
 /* ========== PREMIUM HEADER BANNER ========== */
 .banner-title-container {
-    background: linear-gradient(135deg, #003d82 0%, #0066cc 50%, #003d82 100%);
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff85a1 50%, #ff6b9d 100%);
     padding: 40px 50px;
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0, 61, 130, 0.3),
-                0 5px 15px rgba(0, 102, 204, 0.2),
+    box-shadow: 0 10px 40px rgba(255, 107, 157, 0.3),
+                0 5px 15px rgba(255, 133, 161, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
     margin-bottom: 30px;
     text-align: center;
@@ -119,7 +119,7 @@ footer {visibility: hidden;}
     font-weight: 900 !important;
     font-size: 2.8rem !important;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3),
-                 0 0 30px rgba(212, 175, 55, 0.3);
+                 0 0 30px rgba(255, 182, 193, 0.5);
     margin-bottom: 10px !important;
     letter-spacing: -0.5px;
     position: relative;
@@ -128,12 +128,12 @@ footer {visibility: hidden;}
 }
 
 @keyframes titleGlow {
-    from { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(212, 175, 55, 0.3); }
-    to { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 40px rgba(212, 175, 55, 0.5); }
+    from { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 182, 193, 0.5); }
+    to { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255, 182, 193, 0.7); }
 }
 
 .banner-title-container h3 {
-    color: #d4af37 !important;
+    color: #fff0f5 !important;
     font-weight: 600 !important;
     font-size: 1.3rem !important;
     margin-top: 0 !important;
@@ -153,13 +153,13 @@ footer {visibility: hidden;}
     transform: translateX(-50%);
     width: 80%;
     height: 3px;
-    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    background: linear-gradient(90deg, transparent, #ffb3c6, transparent);
     z-index: 1;
 }
 
 /* ========== SIDEBAR PREMIUM STYLING ========== */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #003d82 0%, #002850 100%) !important;
+    background: linear-gradient(180deg, #ff6b9d 0%, #e91e63 100%) !important;
     box-shadow: 2px 0 20px rgba(0, 0, 0, 0.1);
 }
 
@@ -174,7 +174,7 @@ footer {visibility: hidden;}
 /* File uploader trong sidebar */
 div[data-testid="stFileUploader"] {
     background: rgba(255, 255, 255, 0.05);
-    border: 2px dashed #d4af37 !important;
+    border: 2px dashed #ffb3c6 !important;
     border-radius: 15px;
     padding: 20px;
     margin-top: 15px;
@@ -184,15 +184,15 @@ div[data-testid="stFileUploader"] {
 
 div[data-testid="stFileUploader"]:hover {
     background: rgba(255, 255, 255, 0.1);
-    border-color: #ffd700 !important;
+    border-color: #ffc0cb !important;
     transform: translateY(-2px);
-    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
+    box-shadow: 0 5px 20px rgba(255, 179, 198, 0.3);
 }
 
 /* ========== TABS PREMIUM DESIGN ========== */
 button[data-testid="stTab"] {
-    background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
-    border: 2px solid #e0e6ed;
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f7 100%);
+    border: 2px solid #ffd4dd;
     border-radius: 12px 12px 0 0 !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 700;
@@ -204,19 +204,19 @@ button[data-testid="stTab"] {
 }
 
 button[data-testid="stTab"]:hover {
-    background: linear-gradient(135deg, #e8f4f8 0%, #d4e8f0 100%);
-    color: #003d82;
-    border-color: #0066cc;
+    background: linear-gradient(135deg, #ffe8f0 0%, #ffd4dd 100%);
+    color: #c2185b;
+    border-color: #ff6b9d;
     transform: translateY(-3px);
-    box-shadow: 0 5px 15px rgba(0, 102, 204, 0.2);
+    box-shadow: 0 5px 15px rgba(255, 107, 157, 0.2);
 }
 
 button[data-testid="stTab"][aria-selected="true"] {
-    background: linear-gradient(135deg, #003d82 0%, #0066cc 100%) !important;
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff85a1 100%) !important;
     color: #ffffff !important;
-    border-color: #d4af37 !important;
-    border-bottom: 3px solid #d4af37 !important;
-    box-shadow: 0 8px 20px rgba(0, 61, 130, 0.4),
+    border-color: #ffb3c6 !important;
+    border-bottom: 3px solid #ffb3c6 !important;
+    box-shadow: 0 8px 20px rgba(255, 107, 157, 0.4),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
     transform: translateY(-3px);
 }
@@ -228,41 +228,41 @@ h1, h2, h3, h4 {
 }
 
 h2 {
-    color: #003d82 !important;
-    border-bottom: 3px solid #d4af37;
+    color: #c2185b !important;
+    border-bottom: 3px solid #ffb3c6;
     padding-bottom: 10px;
     margin-bottom: 20px !important;
 }
 
 h3 {
-    color: #0066cc !important;
-    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
+    color: #ff6b9d !important;
+    border-bottom: 2px solid rgba(255, 179, 198, 0.3);
     padding-bottom: 8px;
     margin-bottom: 15px !important;
 }
 
 /* ========== METRIC CONTAINERS ========== */
 div[data-testid="metric-container"] {
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #fff5f7 100%);
     border: 2px solid transparent;
-    border-image: linear-gradient(135deg, #d4af37, #0066cc) 1;
+    border-image: linear-gradient(135deg, #ffb3c6, #ff6b9d) 1;
     border-radius: 16px;
     padding: 20px;
-    box-shadow: 0 8px 25px rgba(0, 61, 130, 0.12),
+    box-shadow: 0 8px 25px rgba(255, 107, 157, 0.12),
                 0 3px 10px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
 }
 
 div[data-testid="metric-container"]:hover {
     transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 12px 35px rgba(0, 61, 130, 0.2),
-                0 5px 15px rgba(212, 175, 55, 0.15);
+    box-shadow: 0 12px 35px rgba(255, 107, 157, 0.2),
+                0 5px 15px rgba(255, 179, 198, 0.15);
 }
 
 /* Metric label */
 div[data-testid="metric-container"] label {
     font-weight: 700 !important;
-    color: #003d82 !important;
+    color: #c2185b !important;
     font-size: 0.9rem !important;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -270,33 +270,33 @@ div[data-testid="metric-container"] label {
 
 /* Metric value */
 div[data-testid="metric-container"] [data-testid="stMetricValue"] {
-    color: #0066cc !important;
+    color: #ff6b9d !important;
     font-weight: 900 !important;
     font-size: 2.2rem !important;
 }
 
 /* ========== BUTTONS PREMIUM ========== */
 button[kind="primary"] {
-    background: linear-gradient(135deg, #003d82 0%, #0066cc 100%) !important;
-    border: 2px solid #d4af37 !important;
+    background: linear-gradient(135deg, #ff6b9d 0%, #ff85a1 100%) !important;
+    border: 2px solid #ffb3c6 !important;
     border-radius: 12px !important;
     color: #ffffff !important;
     font-weight: 700 !important;
     font-size: 1.05rem !important;
     padding: 12px 30px !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    box-shadow: 0 6px 20px rgba(0, 61, 130, 0.3),
+    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.2);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
 button[kind="primary"]:hover {
-    background: linear-gradient(135deg, #002850 0%, #004a99 100%) !important;
-    border-color: #ffd700 !important;
+    background: linear-gradient(135deg, #e91e63 0%, #f06292 100%) !important;
+    border-color: #ffc0cb !important;
     transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 10px 30px rgba(0, 61, 130, 0.4),
-                0 5px 15px rgba(212, 175, 55, 0.3),
+    box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4),
+                0 5px 15px rgba(255, 179, 198, 0.3),
                 inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 
@@ -316,15 +316,15 @@ div[data-testid="stContainer"] {
 /* Expander */
 div[data-testid="stExpander"] {
     background: #ffffff;
-    border: 2px solid #e0e6ed;
+    border: 2px solid #ffd4dd;
     border-radius: 12px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 
 div[data-testid="stExpander"]:hover {
-    border-color: #0066cc;
-    box-shadow: 0 4px 15px rgba(0, 102, 204, 0.15);
+    border-color: #ff6b9d;
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.15);
 }
 
 /* ========== DATAFRAMES ========== */
@@ -345,8 +345,8 @@ div[data-baseweb="notification"] {
 
 /* Info box */
 div[data-baseweb="notification"][data-testid*="stInfo"] {
-    background: linear-gradient(135deg, #e8f4f8 0%, #d4e8f0 100%);
-    border-left-color: #0066cc !important;
+    background: linear-gradient(135deg, #ffe8f0 0%, #ffd4dd 100%);
+    border-left-color: #ff6b9d !important;
 }
 
 /* Success box */
@@ -371,20 +371,20 @@ div[data-baseweb="notification"][data-testid*="stError"] {
 hr {
     border: none;
     height: 3px;
-    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+    background: linear-gradient(90deg, transparent, #ffb3c6, transparent);
     margin: 30px 0;
 }
 
 /* ========== PROGRESS BAR ========== */
 div[data-testid="stProgress"] > div {
-    background: linear-gradient(90deg, #003d82, #0066cc, #d4af37);
+    background: linear-gradient(90deg, #ff6b9d, #ff85a1, #ffb3c6);
     border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0, 102, 204, 0.3);
+    box-shadow: 0 2px 10px rgba(255, 107, 157, 0.3);
 }
 
 /* ========== SPINNER ========== */
 div[data-testid="stSpinner"] > div {
-    border-top-color: #d4af37 !important;
+    border-top-color: #ffb3c6 !important;
 }
 
 /* ========== TOOLTIPS & CAPTIONS ========== */
@@ -421,12 +421,12 @@ div[data-testid="stSpinner"] > div {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #003d82, #0066cc);
+    background: linear-gradient(180deg, #ff6b9d, #ff85a1);
     border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #002850, #004a99);
+    background: linear-gradient(180deg, #e91e63, #f06292);
 }
 
 </style>
@@ -799,9 +799,9 @@ with tab_build:
             fig.patch.set_facecolor('#f8f9fa')
             ax.set_facecolor('#ffffff')
 
-            # Scatter plot với màu sắc banking theme
+            # Scatter plot với màu sắc pink rose theme
             sns.scatterplot(data=df, x=col, y='default', alpha=0.65, ax=ax, hue='default',
-                          palette=['#0066cc', '#d4af37'], s=80, edgecolor='white', linewidth=0.5)
+                          palette=['#ff6b9d', '#ffb3c6'], s=80, edgecolor='white', linewidth=0.5)
 
             # Vẽ đường logistic regression theo 1 biến
             x_range = np.linspace(df[col].min(), df[col].max(), 100).reshape(-1, 1)
@@ -811,16 +811,16 @@ with tab_build:
             lr_temp.fit(X_temp, y_temp)
             x_test = pd.DataFrame({col: x_range[:, 0]})
             y_curve = lr_temp.predict_proba(x_test)[:, 1]
-            ax.plot(x_range, y_curve, color='#003d82', linewidth=4, label='Đường LogReg',
+            ax.plot(x_range, y_curve, color='#c2185b', linewidth=4, label='Đường LogReg',
                    linestyle='-', alpha=0.9)
 
             # Styling cho tiêu đề và labels
-            ax.set_title(f'Quan hệ giữa {col} và Xác suất Vỡ nợ', fontsize=16, fontweight='bold', color='#003d82', pad=20)
+            ax.set_title(f'Quan hệ giữa {col} và Xác suất Vỡ nợ', fontsize=16, fontweight='bold', color='#c2185b', pad=20)
             ax.set_ylabel('Xác suất Default (0: Non-Default, 1: Default)', fontsize=13, fontweight='600', color='#4a5568')
             ax.set_xlabel(col, fontsize=13, fontweight='600', color='#4a5568')
 
             # Grid styling
-            ax.grid(True, alpha=0.2, linestyle='--', linewidth=0.8, color='#0066cc')
+            ax.grid(True, alpha=0.2, linestyle='--', linewidth=0.8, color='#ff6b9d')
             ax.spines['top'].set_visible(False)
             ax.spines['right'].set_visible(False)
             ax.spines['left'].set_color('#d0d0d0')
@@ -848,20 +848,20 @@ with tab_build:
         st.markdown("##### Ma trận Nhầm lẫn (Test Set)")
         cm = confusion_matrix(y_test, y_pred_out)
 
-        # Tạo custom colormap cho banking theme
+        # Tạo custom colormap cho pink rose theme
         from matplotlib.colors import LinearSegmentedColormap
-        colors_banking = ['#f8f9fa', '#e8f4f8', '#d4e8f0', '#0066cc', '#003d82']
+        colors_pink = ['#fff5f7', '#ffe8f0', '#ffd4dd', '#ff85a1', '#ff6b9d']
         n_bins = 100
-        cmap_banking = LinearSegmentedColormap.from_list('banking', colors_banking, N=n_bins)
+        cmap_pink = LinearSegmentedColormap.from_list('pink_rose', colors_pink, N=n_bins)
 
         disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=['Non-Default (0)', 'Default (1)'])
         fig2, ax = plt.subplots(figsize=(7, 7))
         fig2.patch.set_facecolor('#f8f9fa')
 
-        disp.plot(ax=ax, cmap=cmap_banking, colorbar=True)
+        disp.plot(ax=ax, cmap=cmap_pink, colorbar=True)
 
         # Styling
-        ax.set_title('Ma trận Nhầm lẫn', fontsize=14, fontweight='bold', color='#003d82', pad=15)
+        ax.set_title('Ma trận Nhầm lẫn', fontsize=14, fontweight='bold', color='#c2185b', pad=15)
         ax.set_xlabel('Predicted Label', fontsize=12, fontweight='600', color='#4a5568')
         ax.set_ylabel('True Label', fontsize=12, fontweight='600', color='#4a5568')
 
@@ -988,8 +988,113 @@ with tab_predict:
 
         st.divider()
 
+        # ========================================
+        # THÊM BIỂU ĐỒ VISUALIZATION CHO CÁC CHỈ SỐ TÀI CHÍNH
+        # ========================================
+        st.markdown("### 2. 📊 Trực quan hóa Các Chỉ số Tài chính")
+
+        # Tạo 2 cột cho 2 loại biểu đồ
+        chart_col1, chart_col2 = st.columns(2)
+
+        with chart_col1:
+            st.markdown("#### 📈 Biểu đồ Cột - Giá trị các Chỉ số")
+            # Tạo bar chart
+            fig_bar, ax_bar = plt.subplots(figsize=(8, 10))
+            fig_bar.patch.set_facecolor('#fff5f7')
+            ax_bar.set_facecolor('#ffffff')
+
+            # Chuẩn bị data cho bar chart
+            indicators = ratios_display.index.tolist()
+            values = ratios_display['Giá trị'].values
+
+            # Tạo màu gradient cho các bars
+            colors = plt.cm.RdPu(np.linspace(0.3, 0.9, len(indicators)))
+
+            # Vẽ horizontal bar chart
+            bars = ax_bar.barh(indicators, values, color=colors, edgecolor='white', linewidth=1.5)
+
+            # Thêm giá trị vào cuối mỗi bar
+            for i, (bar, val) in enumerate(zip(bars, values)):
+                width = bar.get_width()
+                ax_bar.text(width, bar.get_y() + bar.get_height()/2,
+                           f' {val:.3f}', ha='left', va='center',
+                           fontsize=9, fontweight='600', color='#c2185b')
+
+            # Styling
+            ax_bar.set_xlabel('Giá trị', fontsize=12, fontweight='600', color='#4a5568')
+            ax_bar.set_title('Các Chỉ số Tài chính', fontsize=14, fontweight='bold', color='#c2185b', pad=15)
+            ax_bar.grid(True, alpha=0.2, linestyle='--', linewidth=0.8, color='#ff6b9d', axis='x')
+            ax_bar.spines['top'].set_visible(False)
+            ax_bar.spines['right'].set_visible(False)
+            ax_bar.spines['left'].set_color('#d0d0d0')
+            ax_bar.spines['bottom'].set_color('#d0d0d0')
+
+            # Điều chỉnh layout để labels không bị cắt
+            plt.tight_layout()
+            st.pyplot(fig_bar)
+            plt.close(fig_bar)
+
+        with chart_col2:
+            st.markdown("#### 🎯 Biểu đồ Radar - Phân tích Đa chiều")
+            # Tạo radar chart (spider chart)
+            fig_radar = plt.figure(figsize=(10, 10))
+            fig_radar.patch.set_facecolor('#fff5f7')
+            ax_radar = fig_radar.add_subplot(111, projection='polar')
+
+            # Chuẩn bị data cho radar chart
+            # Normalize các giá trị về khoảng 0-1 để dễ visualize
+            from sklearn.preprocessing import MinMaxScaler
+            scaler = MinMaxScaler()
+            normalized_values = scaler.fit_transform(values.reshape(-1, 1)).flatten()
+
+            # Tạo các góc cho mỗi chỉ số
+            angles = np.linspace(0, 2 * np.pi, len(indicators), endpoint=False).tolist()
+            normalized_values = normalized_values.tolist()
+
+            # Đóng vòng tròn
+            angles += angles[:1]
+            normalized_values += normalized_values[:1]
+
+            # Vẽ radar chart
+            ax_radar.plot(angles, normalized_values, 'o-', linewidth=2.5, color='#ff6b9d', label='Chỉ số')
+            ax_radar.fill(angles, normalized_values, alpha=0.25, color='#ffb3c6')
+
+            # Thêm labels
+            ax_radar.set_xticks(angles[:-1])
+            # Rút ngắn tên chỉ số để dễ đọc
+            short_labels = [label.split('(')[0].strip()[:20] for label in indicators]
+            ax_radar.set_xticklabels(short_labels, size=8, color='#4a5568', fontweight='600')
+
+            # Styling
+            ax_radar.set_ylim(0, 1)
+            ax_radar.set_title('Phân tích Đa chiều các Chỉ số\n(Normalized 0-1)',
+                              fontsize=14, fontweight='bold', color='#c2185b', pad=20)
+            ax_radar.grid(True, alpha=0.3, linestyle='--', linewidth=0.8, color='#ff6b9d')
+            ax_radar.set_facecolor('#ffffff')
+
+            plt.tight_layout()
+            st.pyplot(fig_radar)
+            plt.close(fig_radar)
+
+        # Thêm expander với thông tin bổ sung
+        with st.expander("ℹ️ Giải thích về Biểu đồ"):
+            st.markdown("""
+            **Biểu đồ Cột (Bar Chart):**
+            - Hiển thị giá trị thực tế của từng chỉ số tài chính
+            - Màu sắc gradient từ nhạt đến đậm để dễ phân biệt
+            - Giá trị cụ thể được hiển thị bên cạnh mỗi cột
+
+            **Biểu đồ Radar (Spider Chart):**
+            - Hiển thị cân bằng tổng thể giữa các chỉ số
+            - Giá trị được chuẩn hóa về thang 0-1 để dễ so sánh
+            - Diện tích vùng phủ thể hiện độ mạnh của các chỉ số
+            - Hình dạng đều = tốt, hình dạng lệch = cần cân bằng
+            """)
+
+        st.divider()
+
         # Khu vực Phân tích AI
-        st.markdown("### 2. 🧠 Phân tích AI & Khuyến nghị Tín dụng")
+        st.markdown("### 3. 🧠 Phân tích AI & Khuyến nghị Tín dụng")
         
         ai_container = st.container(border=True)
         with ai_container:
@@ -1037,7 +1142,7 @@ footer_col1, footer_col2, footer_col3 = st.columns([2, 2, 1])
 with footer_col1:
     st.markdown("""
     <div style='padding: 15px; text-align: left;'>
-        <h4 style='color: #003d82; margin-bottom: 10px;'>🏦 Hệ Thống Đánh Giá Rủi Ro Tín Dụng</h4>
+        <h4 style='color: #ff6b9d; margin-bottom: 10px;'>🏦 Hệ Thống Đánh Giá Rủi Ro Tín Dụng</h4>
         <p style='color: #6b7280; font-size: 0.9rem; margin: 5px 0;'>
             Giải pháp AI tiên tiến cho phân tích tài chính doanh nghiệp
         </p>
@@ -1050,7 +1155,7 @@ with footer_col1:
 with footer_col2:
     st.markdown("""
     <div style='padding: 15px; text-align: left;'>
-        <h4 style='color: #003d82; margin-bottom: 10px;'>📊 Tính Năng Chính</h4>
+        <h4 style='color: #ff6b9d; margin-bottom: 10px;'>📊 Tính Năng Chính</h4>
         <ul style='color: #6b7280; font-size: 0.85rem; margin: 5px 0; padding-left: 20px;'>
             <li>Phân tích 14 chỉ số tài chính tự động</li>
             <li>Dự báo xác suất vỡ nợ (PD) chính xác</li>
@@ -1063,9 +1168,9 @@ with footer_col2:
 with footer_col3:
     st.markdown(f"""
     <div style='padding: 15px; text-align: center;'>
-        <div style='font-size: 3rem; margin-bottom: 10px;'>🏦</div>
-        <p style='color: #d4af37; font-weight: 700; font-size: 0.9rem; margin: 5px 0;'>
-            BANKING SUITE
+        <div style='font-size: 3rem; margin-bottom: 10px;'>💖</div>
+        <p style='color: #ffb3c6; font-weight: 700; font-size: 0.9rem; margin: 5px 0;'>
+            SWEET ANALYTICS
         </p>
         <p style='color: #6b7280; font-size: 0.75rem;'>
             Version 2.0 Premium
@@ -1075,12 +1180,12 @@ with footer_col3:
 
 st.markdown(f"""
 <div style='text-align: center; padding: 20px; margin-top: 20px;
-            background: linear-gradient(135deg, #003d82 0%, #0066cc 100%);
-            border-radius: 15px; box-shadow: 0 4px 15px rgba(0, 61, 130, 0.2);'>
+            background: linear-gradient(135deg, #ff6b9d 0%, #ff85a1 100%);
+            border-radius: 15px; box-shadow: 0 4px 15px rgba(255, 107, 157, 0.2);'>
     <p style='color: #ffffff; margin: 5px 0; font-size: 0.9rem; font-weight: 600;'>
         © {datetime.now().year} Credit Risk Assessment System | Developed with ❤️ using Streamlit
     </p>
-    <p style='color: #d4af37; margin: 5px 0; font-size: 0.85rem;'>
+    <p style='color: #fff0f5; margin: 5px 0; font-size: 0.85rem;'>
         🔒 Secure • 🚀 Fast • 🎯 Accurate • ✨ AI-Powered
     </p>
 </div>
