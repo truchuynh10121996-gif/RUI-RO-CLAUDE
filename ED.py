@@ -635,7 +635,7 @@ with col_logo:
 with col_title:
     st.markdown("""
         <h1 style='margin: 0; padding: 0;'>CHƯƠNG TRÌNH ĐÁNH GIÁ RỦI RO TÍN DỤNG</h1>
-        <h3 style='margin: 5px 0 0 0;'>Dự báo Xác suất Vỡ nợ (PD) & Phân tích AI Chuyên sâu</h3>
+        <h3 style='margin: 5px 0 0 0;'>Dự báo Xác suất Vỡ nợ KHDN (PD) & Phân tích AI Chuyên sâu</h3>
     """, unsafe_allow_html=True)
 
 st.markdown('</div>', unsafe_allow_html=True)
