@@ -37,8 +37,233 @@ except Exception:
     OpenAI = None
     _OPENAI_OK = False
 
+# Thư viện PDF Export
+try:
+    from reportlab.lib import colors
+    from reportlab.lib.pagesizes import A4, letter
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import inch, cm
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image, PageBreak
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+    from io import BytesIO
+    _PDF_OK = True
+except Exception:
+    _PDF_OK = False
 
 MODEL_NAME = "gemini-2.5-flash"
+
+# =========================
+# HÀM TẠO PDF REPORT
+# =========================
+
+def generate_pdf_report(ratios_display, pd_value, pd_label, ai_analysis, fig_bar, fig_radar, company_name="KHÁCH HÀNG DOANH NGHIỆP"):
+    """
+    Tạo báo cáo PDF chuyên nghiệp từ kết quả phân tích tín dụng.
+
+    Parameters:
+    - ratios_display: DataFrame chứa 14 chỉ số tài chính (index = tên chỉ số, column = giá trị)
+    - pd_value: Xác suất vỡ nợ (PD) dưới dạng số float (0-1) hoặc NaN
+    - pd_label: Nhãn dự đoán ("Default" hoặc "Non-Default")
+    - ai_analysis: Text phân tích từ AI
+    - fig_bar: Matplotlib figure của bar chart
+    - fig_radar: Matplotlib figure của radar chart
+    - company_name: Tên công ty (mặc định)
+
+    Returns:
+    - BytesIO object chứa PDF
+    """
+
+    if not _PDF_OK:
+        raise Exception("Thiếu thư viện reportlab. Vui lòng cài đặt: pip install reportlab Pillow")
+
+    # Tạo buffer để chứa PDF
+    buffer = BytesIO()
+
+    # Tạo document với A4 page size
+    doc = SimpleDocTemplate(buffer, pagesize=A4, topMargin=1.5*cm, bottomMargin=1.5*cm, leftMargin=2*cm, rightMargin=2*cm)
+
+    # Container cho các elements
+    elements = []
+
+    # Styles
+    styles = getSampleStyleSheet()
+
+    # Custom styles cho tiếng Việt (sử dụng font mặc định hỗ trợ UTF-8)
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Title'],
+        fontSize=18,
+        textColor=colors.HexColor('#c2185b'),
+        alignment=TA_CENTER,
+        spaceAfter=12,
+        fontName='Helvetica-Bold'
+    )
+
+    heading_style = ParagraphStyle(
+        'CustomHeading',
+        parent=styles['Heading2'],
+        fontSize=14,
+        textColor=colors.HexColor('#ff6b9d'),
+        spaceAfter=10,
+        spaceBefore=15,
+        fontName='Helvetica-Bold'
+    )
+
+    normal_style = ParagraphStyle(
+        'CustomNormal',
+        parent=styles['Normal'],
+        fontSize=10,
+        alignment=TA_JUSTIFY,
+        spaceAfter=8,
+        fontName='Helvetica'
+    )
+
+    # ===== 1. HEADER VỚI LOGO VÀ TIÊU ĐỀ =====
+    try:
+        # Thử thêm logo nếu file tồn tại
+        if os.path.exists("logo-agribank.jpg"):
+            logo = Image("logo-agribank.jpg", width=2*inch, height=0.8*inch)
+            elements.append(logo)
+            elements.append(Spacer(1, 0.3*inch))
+    except Exception:
+        pass
+
+    # Tiêu đề chính
+    title = Paragraph("<b>BÁO CÁO ĐÁNH GIÁ RỦI RO TÍN DỤNG</b>", title_style)
+    elements.append(title)
+
+    subtitle = Paragraph(f"<b>Dự báo Xác suất Vỡ nợ (PD) & Phân tích AI Chuyên sâu</b>", normal_style)
+    elements.append(subtitle)
+
+    # Thông tin thời gian
+    date_info = Paragraph(f"Ngày xuất báo cáo: {datetime.now().strftime('%d/%m/%Y %H:%M')}", normal_style)
+    elements.append(date_info)
+
+    company_info = Paragraph(f"<b>Tên khách hàng:</b> {company_name}", normal_style)
+    elements.append(company_info)
+
+    elements.append(Spacer(1, 0.3*inch))
+
+    # ===== 2. KẾT QUẢ DỰ BÁO PD =====
+    elements.append(Paragraph("<b>1. KẾT QUẢ DỰ BÁO XÁC SUẤT VỠ NỢ (PD)</b>", heading_style))
+
+    if pd.notna(pd_value):
+        pd_text = f"<b>Xác suất Vỡ nợ (PD):</b> {pd_value:.2%}<br/>"
+        pd_text += f"<b>Phân loại:</b> {pd_label}<br/>"
+        if "Default" in pd_label and "Non-Default" not in pd_label:
+            pd_text += "<b><font color='red'>⚠️ RỦI RO CAO - CẦN XEM XÉT KỸ LƯỠNG</font></b>"
+        else:
+            pd_text += "<b><font color='green'>✓ RỦI RO THẤP - KHẢ QUAN</font></b>"
+    else:
+        pd_text = "<b>Xác suất Vỡ nợ (PD):</b> Không có dữ liệu"
+
+    elements.append(Paragraph(pd_text, normal_style))
+    elements.append(Spacer(1, 0.2*inch))
+
+    # ===== 3. BẢNG CHỈ SỐ TÀI CHÍNH =====
+    elements.append(Paragraph("<b>2. CHỈ SỐ TÀI CHÍNH CHI TIẾT</b>", heading_style))
+
+    # Tạo data cho table
+    table_data = [["Chỉ số Tài chính", "Giá trị"]]
+
+    for idx, row in ratios_display.iterrows():
+        indicator_name = str(idx)
+        value = row['Giá trị']
+        value_str = f"{value:.4f}" if pd.notna(value) else "N/A"
+        table_data.append([indicator_name, value_str])
+
+    # Tạo table
+    table = Table(table_data, colWidths=[4.5*inch, 1.5*inch])
+    table.setStyle(TableStyle([
+        # Header
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#ff6b9d')),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('FONTSIZE', (0, 0), (-1, 0), 11),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+
+        # Body
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+        ('ALIGN', (0, 1), (0, -1), 'LEFT'),
+        ('ALIGN', (1, 1), (1, -1), 'RIGHT'),
+        ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+        ('FONTSIZE', (0, 1), (-1, -1), 9),
+        ('TOPPADDING', (0, 1), (-1, -1), 6),
+        ('BOTTOMPADDING', (0, 1), (-1, -1), 6),
+
+        # Grid
+        ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fff5f7')]),
+    ]))
+
+    elements.append(table)
+    elements.append(Spacer(1, 0.3*inch))
+
+    # ===== 4. BIỂU ĐỒ VISUALIZATION =====
+    elements.append(PageBreak())  # Trang mới cho charts
+    elements.append(Paragraph("<b>3. TRỰC QUAN HÓA DỮ LIỆU</b>", heading_style))
+
+    # Save bar chart to temporary buffer
+    try:
+        bar_buffer = BytesIO()
+        fig_bar.savefig(bar_buffer, format='png', dpi=150, bbox_inches='tight')
+        bar_buffer.seek(0)
+        bar_img = Image(bar_buffer, width=6*inch, height=4*inch)
+        elements.append(Paragraph("<b>3.1. Biểu đồ Cột - Giá trị các Chỉ số</b>", normal_style))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(bar_img)
+        elements.append(Spacer(1, 0.3*inch))
+    except Exception as e:
+        elements.append(Paragraph(f"<i>Không thể tạo biểu đồ cột: {str(e)}</i>", normal_style))
+
+    # Save radar chart to temporary buffer
+    try:
+        radar_buffer = BytesIO()
+        fig_radar.savefig(radar_buffer, format='png', dpi=150, bbox_inches='tight')
+        radar_buffer.seek(0)
+        radar_img = Image(radar_buffer, width=5*inch, height=5*inch)
+        elements.append(Paragraph("<b>3.2. Biểu đồ Radar - Phân tích Đa chiều</b>", normal_style))
+        elements.append(Spacer(1, 0.1*inch))
+        elements.append(radar_img)
+    except Exception as e:
+        elements.append(Paragraph(f"<i>Không thể tạo biểu đồ radar: {str(e)}</i>", normal_style))
+
+    # ===== 5. PHÂN TÍCH AI =====
+    elements.append(PageBreak())  # Trang mới cho AI analysis
+    elements.append(Paragraph("<b>4. PHÂN TÍCH AI & KHUYẾN NGHỊ TÍN DỤNG</b>", heading_style))
+
+    if ai_analysis and ai_analysis.strip():
+        # Format AI analysis text - chia thành các đoạn
+        analysis_paragraphs = ai_analysis.split('\n')
+        for para in analysis_paragraphs:
+            if para.strip():
+                # Highlight recommendation keywords
+                para_formatted = para.replace("CHO VAY", "<b><font color='green'>CHO VAY</font></b>")
+                para_formatted = para_formatted.replace("KHÔNG CHO VAY", "<b><font color='red'>KHÔNG CHO VAY</font></b>")
+                elements.append(Paragraph(para_formatted, normal_style))
+                elements.append(Spacer(1, 0.1*inch))
+    else:
+        elements.append(Paragraph("<i>Chưa có phân tích từ AI. Vui lòng click nút 'Yêu cầu AI Phân tích & Đề xuất' để nhận khuyến nghị.</i>", normal_style))
+
+    # ===== 6. FOOTER =====
+    elements.append(Spacer(1, 0.5*inch))
+    footer = Paragraph(
+        f"<i>Báo cáo này được tạo tự động bởi Hệ thống Đánh giá Rủi ro Tín dụng - Powered by AI & Machine Learning<br/>"
+        f"© {datetime.now().year} Credit Risk Assessment System | Version 2.0 Premium</i>",
+        ParagraphStyle('Footer', parent=styles['Normal'], fontSize=8, textColor=colors.grey, alignment=TA_CENTER)
+    )
+    elements.append(footer)
+
+    # Build PDF
+    doc.build(elements)
+
+    # Get PDF từ buffer
+    buffer.seek(0)
+    return buffer
 
 # =========================
 # CẤU HÌNH TRANG (NÂNG CẤP GIAO DIỆN)
@@ -1095,15 +1320,15 @@ with tab_predict:
 
         # Khu vực Phân tích AI
         st.markdown("### 3. 🧠 Phân tích AI & Khuyến nghị Tín dụng")
-        
+
         ai_container = st.container(border=True)
         with ai_container:
             st.markdown("Sử dụng AI để phân tích toàn diện các chỉ số và đưa ra khuyến nghị chuyên nghiệp.")
-            
+
             if st.button("✨ Yêu cầu AI Phân tích & Đề xuất", use_container_width=True, type="primary"):
                 # Kiểm tra API Key: ưu tiên lấy từ secrets
-                api_key = st.secrets.get("GEMINI_API_KEY") 
-                
+                api_key = st.secrets.get("GEMINI_API_KEY")
+
                 if api_key:
                     # Thêm thanh tiến trình đẹp mắt
                     progress_bar = st.progress(0, text="Đang gửi dữ liệu và chờ Gemini phân tích...")
@@ -1111,24 +1336,145 @@ with tab_predict:
                         import time
                         time.sleep(0.01) # Giả lập thời gian xử lý
                         progress_bar.progress(percent_complete + 1, text=f"Đang gửi dữ liệu và chờ Gemini phân tích... {percent_complete+1}%")
-                    
+
                     ai_result = get_ai_analysis(data_for_ai, api_key)
                     progress_bar.empty() # Xóa thanh tiến trình
-                    
+
                     st.markdown("**Kết quả Phân tích Chi tiết từ Gemini AI:**")
-                    
+
                     if "KHÔNG CHO VAY" in ai_result.upper():
                         st.error("🚨 **KHUYẾN NGHỊ CUỐI CÙNG: KHÔNG CHO VAY**")
-                        st.snow() 
+                        st.snow()
                     elif "CHO VAY" in ai_result.upper():
                         st.success("✅ **KHUYẾN NGHỊ CUỐI CÙNG: CHO VAY**")
-                        st.balloons() 
+                        st.balloons()
                     else:
                         st.info("💡 **KHUYẾN NGHỊ CUỐI CÙNG**")
-                        
+
                     st.info(ai_result)
+
+                    # Lưu kết quả AI vào session_state để export PDF
+                    st.session_state['ai_analysis'] = ai_result
                 else:
                     st.error("❌ **Lỗi Khóa API**: Không tìm thấy Khóa API. Vui lòng cấu hình Khóa **'GEMINI_API_KEY'** trong Streamlit Secrets.")
+
+        st.divider()
+
+        # ===== NÚT XUẤT FILE PDF =====
+        st.markdown("### 4. 📄 Xuất Báo cáo PDF")
+
+        export_container = st.container(border=True)
+        with export_container:
+            st.markdown("Xuất toàn bộ phân tích (chỉ số tài chính, biểu đồ, PD, khuyến nghị AI) ra file PDF chuyên nghiệp.")
+
+            col_export1, col_export2 = st.columns([3, 1])
+
+            with col_export1:
+                company_name_input = st.text_input("Tên Khách hàng (tùy chọn):", value="KHÁCH HÀNG DOANH NGHIỆP", key="company_name_pdf")
+
+            with col_export2:
+                st.write("")  # Spacer
+
+            if st.button("📥 Xuất file dữ liệu", use_container_width=True, type="primary", key="export_pdf_btn"):
+                if not _PDF_OK:
+                    st.error("❌ Thiếu thư viện reportlab. Không thể xuất PDF.")
+                else:
+                    try:
+                        with st.spinner("Đang tạo báo cáo PDF..."):
+                            # Lấy AI analysis từ session_state nếu có
+                            ai_analysis_text = st.session_state.get('ai_analysis', '')
+
+                            # Tạo lại figures để export (không hiển thị)
+                            # Bar chart
+                            fig_bar_export, ax_bar_export = plt.subplots(figsize=(8, 10))
+                            fig_bar_export.patch.set_facecolor('#fff5f7')
+                            ax_bar_export.set_facecolor('#ffffff')
+
+                            indicators_export = ratios_display.index.tolist()
+                            values_export = ratios_display['Giá trị'].values
+                            colors_export = plt.cm.RdPu(np.linspace(0.3, 0.9, len(indicators_export)))
+
+                            bars_export = ax_bar_export.barh(indicators_export, values_export, color=colors_export, edgecolor='white', linewidth=1.5)
+
+                            for i, (bar, val) in enumerate(zip(bars_export, values_export)):
+                                width = bar.get_width()
+                                ax_bar_export.text(width, bar.get_y() + bar.get_height()/2,
+                                           f' {val:.3f}', ha='left', va='center',
+                                           fontsize=9, fontweight='600', color='#c2185b')
+
+                            ax_bar_export.set_xlabel('Giá trị', fontsize=12, fontweight='600', color='#4a5568')
+                            ax_bar_export.set_title('Các Chỉ số Tài chính', fontsize=14, fontweight='bold', color='#c2185b', pad=15)
+                            ax_bar_export.grid(True, alpha=0.2, linestyle='--', linewidth=0.8, color='#ff6b9d', axis='x')
+                            ax_bar_export.spines['top'].set_visible(False)
+                            ax_bar_export.spines['right'].set_visible(False)
+                            ax_bar_export.spines['left'].set_color('#d0d0d0')
+                            ax_bar_export.spines['bottom'].set_color('#d0d0d0')
+                            plt.tight_layout()
+
+                            # Radar chart
+                            fig_radar_export = plt.figure(figsize=(10, 10))
+                            fig_radar_export.patch.set_facecolor('#fff5f7')
+                            ax_radar_export = fig_radar_export.add_subplot(111, projection='polar')
+
+                            from sklearn.preprocessing import MinMaxScaler
+                            scaler_export = MinMaxScaler()
+                            normalized_values_export = scaler_export.fit_transform(values_export.reshape(-1, 1)).flatten()
+
+                            angles_export = np.linspace(0, 2 * np.pi, len(indicators_export), endpoint=False).tolist()
+                            normalized_values_list_export = normalized_values_export.tolist()
+
+                            angles_export += angles_export[:1]
+                            normalized_values_list_export += normalized_values_list_export[:1]
+
+                            ax_radar_export.plot(angles_export, normalized_values_list_export, 'o-', linewidth=2.5, color='#ff6b9d', label='Chỉ số')
+                            ax_radar_export.fill(angles_export, normalized_values_list_export, alpha=0.25, color='#ffb3c6')
+
+                            ax_radar_export.set_xticks(angles_export[:-1])
+                            short_labels_export = [label.split('(')[0].strip()[:20] for label in indicators_export]
+                            ax_radar_export.set_xticklabels(short_labels_export, size=8, color='#4a5568', fontweight='600')
+
+                            ax_radar_export.set_ylim(0, 1)
+                            ax_radar_export.set_title('Phân tích Đa chiều các Chỉ số\n(Normalized 0-1)',
+                                              fontsize=14, fontweight='bold', color='#c2185b', pad=20)
+                            ax_radar_export.grid(True, alpha=0.3, linestyle='--', linewidth=0.8, color='#ff6b9d')
+                            ax_radar_export.set_facecolor('#ffffff')
+                            plt.tight_layout()
+
+                            # Tạo PD label
+                            if pd.notna(probs) and pd.notna(preds):
+                                pd_label_text = "Default (Vỡ nợ)" if preds[0] == 1 else "Non-Default (Không vỡ nợ)"
+                            else:
+                                pd_label_text = "N/A"
+
+                            # Generate PDF
+                            pdf_buffer = generate_pdf_report(
+                                ratios_display=ratios_display,
+                                pd_value=probs[0] if pd.notna(probs) else np.nan,
+                                pd_label=pd_label_text,
+                                ai_analysis=ai_analysis_text,
+                                fig_bar=fig_bar_export,
+                                fig_radar=fig_radar_export,
+                                company_name=company_name_input
+                            )
+
+                            # Close figures
+                            plt.close(fig_bar_export)
+                            plt.close(fig_radar_export)
+
+                        st.success("✅ Báo cáo PDF đã được tạo thành công!")
+
+                        # Download button
+                        st.download_button(
+                            label="💾 Tải xuống Báo cáo PDF",
+                            data=pdf_buffer,
+                            file_name=f"BaoCao_TinDung_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf",
+                            mime="application/pdf",
+                            use_container_width=True
+                        )
+
+                    except Exception as e:
+                        st.error(f"❌ Lỗi khi tạo PDF: {str(e)}")
+                        st.exception(e)
 
     else:
         st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14, dự báo PD và phân tích AI.")
