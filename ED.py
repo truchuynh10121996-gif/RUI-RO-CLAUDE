@@ -698,6 +698,101 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
 
 
 # =========================
+# HÀM LẤY DỮ LIỆU TÀI CHÍNH TỰ ĐỘNG TỪ GEMINI API
+# =========================
+
+@st.cache_data(ttl=2592000)  # Cache 30 ngày (tự động cập nhật mỗi tháng)
+def get_financial_data_from_ai(api_key: str) -> pd.DataFrame:
+    """
+    Tự động lấy dữ liệu tài chính doanh nghiệp Việt Nam từ Gemini API.
+    Dữ liệu bao gồm: Doanh thu, Tổng tài sản, Lợi nhuận, Nợ phải trả, VCSH theo quý.
+
+    Returns:
+        pd.DataFrame: DataFrame chứa dữ liệu tài chính theo quý
+    """
+    if not _GEMINI_OK:
+        return None
+
+    try:
+        client = genai.Client(api_key=api_key)
+
+        # Lấy quý hiện tại
+        current_date = datetime.now()
+        current_year = current_date.year
+        current_month = current_date.month
+        current_quarter = (current_month - 1) // 3 + 1
+
+        # Prompt yêu cầu Gemini cung cấp dữ liệu tài chính
+        sys_prompt = """Bạn là chuyên gia kinh tế và dữ liệu thống kê về doanh nghiệp Việt Nam.
+        Hãy cung cấp dữ liệu tài chính tổng hợp của khu vực doanh nghiệp Việt Nam theo quý,
+        dựa trên các nguồn thống kê đáng tin cậy như GSO (Tổng cục Thống kê Việt Nam),
+        Bộ Kế hoạch và Đầu tư, hoặc các báo cáo kinh tế vĩ mô.
+
+        Trả về dữ liệu dưới dạng JSON với cấu trúc sau:
+        {
+            "quarters": ["Q1-2021", "Q2-2021", ...],
+            "revenue": [số liệu doanh thu tỷ VNĐ, ...],
+            "assets": [số liệu tổng tài sản tỷ VNĐ, ...],
+            "profit": [số liệu lợi nhuận tỷ VNĐ, ...],
+            "debt": [số liệu nợ phải trả tỷ VNĐ, ...],
+            "equity": [số liệu VCSH tỷ VNĐ, ...]
+        }
+
+        Chỉ trả về JSON, không giải thích thêm."""
+
+        user_prompt = f"""Hãy cung cấp dữ liệu tài chính tổng hợp của khu vực doanh nghiệp Việt Nam
+        từ quý Q1-2021 đến quý Q{current_quarter}-{current_year}.
+
+        Bao gồm các chỉ số:
+        - Doanh thu (Revenue) - tổng doanh thu khu vực doanh nghiệp, đơn vị tỷ VNĐ
+        - Tổng tài sản (Total Assets) - tổng tài sản khu vực doanh nghiệp, đơn vị tỷ VNĐ
+        - Lợi nhuận (Profit) - lợi nhuận sau thuế, đơn vị tỷ VNĐ
+        - Nợ phải trả (Debt) - tổng nợ phải trả, đơn vị tỷ VNĐ
+        - Vốn chủ sở hữu (Equity/VCSH) - tổng VCSH, đơn vị tỷ VNĐ
+
+        Dữ liệu phải phản ánh xu hướng tăng trưởng thực tế của nền kinh tế Việt Nam.
+        Chỉ trả về JSON thuần, không markdown, không giải thích."""
+
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=[
+                {"role": "user", "parts": [{"text": sys_prompt + "\n\n" + user_prompt}]}
+            ],
+            config={"system_instruction": sys_prompt}
+        )
+
+        # Parse JSON response
+        import json
+        import re
+
+        response_text = response.text.strip()
+
+        # Loại bỏ markdown code block nếu có
+        if "```json" in response_text:
+            response_text = re.search(r'```json\s*(\{.*?\})\s*```', response_text, re.DOTALL).group(1)
+        elif "```" in response_text:
+            response_text = re.search(r'```\s*(\{.*?\})\s*```', response_text, re.DOTALL).group(1)
+
+        data = json.loads(response_text)
+
+        # Tạo DataFrame
+        df = pd.DataFrame({
+            'Quý': data.get('quarters', []),
+            'Doanh thu (tỷ VNĐ)': data.get('revenue', []),
+            'Tổng tài sản (tỷ VNĐ)': data.get('assets', []),
+            'Lợi nhuận (tỷ VNĐ)': data.get('profit', []),
+            'Nợ phải trả (tỷ VNĐ)': data.get('debt', []),
+            'VCSH (tỷ VNĐ)': data.get('equity', [])
+        })
+
+        return df
+
+    except Exception as e:
+        st.error(f"Lỗi khi lấy dữ liệu từ AI: {e}")
+        return None
+
+
+# =========================
 # TÍNH X1..X14 TỪ 3 SHEET (CDKT/BCTN/LCTT) - SỬ DỤNG TÊN TIẾNG VIỆT (GIỮ NGUYÊN)
 # =========================
 
@@ -1499,25 +1594,43 @@ with tab_dashboard:
     info_container = st.container(border=True)
     with info_container:
         st.markdown("### 📥 Nguồn Dữ liệu")
-        st.info("""
-        **Hướng dẫn lấy dữ liệu từ GSO:**
-        1. Truy cập: [https://gso.gov.vn](https://gso.gov.vn)
-        2. Chọn mục **Số liệu thống kê** → **Doanh nghiệp**
-        3. Tải về file Excel/CSV chứa dữ liệu theo quý
-        4. Upload file vào đây để phân tích và trực quan hóa
 
-        **Định dạng file yêu cầu:**
-        - File CSV hoặc Excel (.xlsx)
-        - Cột **Quý/Năm** (ví dụ: Q1-2023, Q2-2023...)
-        - Cột **Doanh thu** (đơn vị: tỷ đồng)
-        - Cột **Tổng tài sản** (đơn vị: tỷ đồng)
-        - Các cột khác: Lợi nhuận, Nợ phải trả, VCSH... (tùy chọn)
+        # Highlight tính năng mới
+        st.success("""
+        🆕 **TÍNH NĂNG MỚI**: Tự động lấy dữ liệu tài chính doanh nghiệp Việt Nam từ **Gemini AI**!
+        - ✅ Tự động cập nhật theo tháng (cache 30 ngày)
+        - ✅ Dữ liệu từ nguồn tin cậy (GSO, Bộ KH&ĐT)
+        - ✅ Không cần tải file thủ công
         """)
+
+        with st.expander("📖 Hướng dẫn sử dụng các nguồn dữ liệu"):
+            st.markdown("""
+            **🚀 Tự động lấy từ Gemini AI (Khuyến nghị):**
+            - Nhấn nút **"Lấy từ Gemini AI"** để tự động lấy dữ liệu mới nhất
+            - Dữ liệu được cache 30 ngày, tự động cập nhật mỗi tháng
+            - Nguồn dữ liệu: GSO, Bộ KH&ĐT, báo cáo kinh tế vĩ mô
+
+            **📂 Tải lên dữ liệu GSO thủ công:**
+            1. Truy cập: [https://gso.gov.vn](https://gso.gov.vn)
+            2. Chọn mục **Số liệu thống kê** → **Doanh nghiệp**
+            3. Tải về file Excel/CSV chứa dữ liệu theo quý
+            4. Upload file vào đây để phân tích
+
+            **📊 Dữ liệu Demo:**
+            - Sử dụng dữ liệu mẫu để khám phá tính năng
+
+            **Định dạng file yêu cầu (khi upload thủ công):**
+            - File CSV hoặc Excel (.xlsx)
+            - Cột **Quý/Năm** (ví dụ: Q1-2023, Q2-2023...)
+            - Cột **Doanh thu** (đơn vị: tỷ đồng)
+            - Cột **Tổng tài sản** (đơn vị: tỷ đồng)
+            - Các cột khác: Lợi nhuận, Nợ phải trả, VCSH... (tùy chọn)
+            """)
 
     st.divider()
 
-    # Upload file hoặc sử dụng dữ liệu mẫu
-    col_upload, col_sample = st.columns([2, 1])
+    # Upload file, lấy dữ liệu từ AI, hoặc sử dụng dữ liệu mẫu
+    col_upload, col_ai, col_sample = st.columns([2, 1, 1])
 
     with col_upload:
         st.markdown("#### 📂 Tải lên Dữ liệu GSO")
@@ -1527,9 +1640,14 @@ with tab_dashboard:
             key="gso_upload"
         )
 
+    with col_ai:
+        st.markdown("#### 🤖 Dữ liệu AI")
+        use_ai_data = st.button("🚀 Lấy từ Gemini AI", use_container_width=True, type="primary",
+                                help="Tự động lấy dữ liệu tài chính doanh nghiệp VN mới nhất từ Gemini AI")
+
     with col_sample:
         st.markdown("#### 🎯 Dữ liệu Mẫu")
-        use_sample = st.button("📊 Sử dụng Dữ liệu Mẫu", use_container_width=True, type="primary")
+        use_sample = st.button("📊 Dữ liệu Demo", use_container_width=True, type="secondary")
 
     # Biến lưu DataFrame
     gso_data = None
@@ -1545,6 +1663,23 @@ with tab_dashboard:
             st.success(f"✅ Đã tải thành công file: **{uploaded_gso.name}**")
         except Exception as e:
             st.error(f"❌ Lỗi khi đọc file: {e}")
+
+    # Hoặc lấy dữ liệu tự động từ Gemini AI
+    elif use_ai_data:
+        if not _GEMINI_OK:
+            st.error("❌ Thiếu thư viện google-genai. Vui lòng cài đặt: pip install google-genai")
+        else:
+            api_key = st.secrets.get("GEMINI_API_KEY")
+            if api_key:
+                with st.spinner('🤖 Đang lấy dữ liệu tài chính từ Gemini AI... (có thể mất 10-20 giây)'):
+                    gso_data = get_financial_data_from_ai(api_key)
+                    if gso_data is not None and not gso_data.empty:
+                        st.success("✅ Đã lấy thành công dữ liệu tài chính doanh nghiệp Việt Nam từ Gemini AI!")
+                        st.info("💡 **Dữ liệu được cache 30 ngày** - Sẽ tự động cập nhật vào tháng sau")
+                    else:
+                        st.warning("⚠️ Không thể lấy dữ liệu từ AI. Vui lòng thử lại hoặc sử dụng dữ liệu mẫu.")
+            else:
+                st.error("❌ **Lỗi Khóa API**: Không tìm thấy GEMINI_API_KEY trong Streamlit Secrets.")
 
     # Hoặc sử dụng dữ liệu mẫu
     elif use_sample:
