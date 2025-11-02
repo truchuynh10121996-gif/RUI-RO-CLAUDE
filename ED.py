@@ -1147,11 +1147,13 @@ with tab_predict:
         if set(X.columns) == set(ratios_predict.columns):
             try:
                 # Đảm bảo thứ tự cột cho predict đúng như thứ tự cột huấn luyện
-                probs = model.predict_proba(ratios_predict[X.columns])[:, 1]
-                preds = (probs >= 0.5).astype(int)
+                probs_array = model.predict_proba(ratios_predict[X.columns])[:, 1]
+                # Chuyển từ numpy array sang scalar để tránh lỗi ambiguous truth value
+                probs = float(probs_array[0])
+                preds = int(probs >= 0.5)
                 # Thêm PD vào payload AI
-                data_for_ai['Xác suất Vỡ nợ (PD)'] = probs[0]
-                data_for_ai['Dự đoán PD'] = "Default (Vỡ nợ)" if preds[0] == 1 else "Non-Default (Không vỡ nợ)"
+                data_for_ai['Xác suất Vỡ nợ (PD)'] = probs
+                data_for_ai['Dự đoán PD'] = "Default (Vỡ nợ)" if preds == 1 else "Non-Default (Không vỡ nợ)"
             except Exception as e:
                 # Nếu có lỗi dự báo, chỉ cảnh báo, không dừng app
                 st.warning(f"Không dự báo được PD: {e}")
@@ -1199,15 +1201,15 @@ with tab_predict:
             )
         
         with pd_col_pd:
-            pd_value = f"{probs[0]:.2%}" if pd.notna(probs) else "N/A"
-            pd_delta = "⬆️ Rủi ro cao" if pd.notna(preds) and preds[0] == 1 else "⬇️ Rủi ro thấp"
-            
+            pd_value = f"{probs:.2%}" if pd.notna(probs) else "N/A"
+            pd_delta = "⬆️ Rủi ro cao" if pd.notna(preds) and preds == 1 else "⬇️ Rủi ro thấp"
+
             st.metric(
                 label="**Xác suất Vỡ nợ (PD)**",
                 value=pd_value,
                 delta=pd_delta if pd.notna(probs) else None,
                 # Đảo ngược màu sắc delta cho PD: Rủi ro cao là màu đỏ (inverse), rủi ro thấp là màu xanh (normal)
-                delta_color=("inverse" if pd.notna(preds) and preds[0] == 1 else "normal")
+                delta_color=("inverse" if pd.notna(preds) and preds == 1 else "normal")
             )
         # ------------------------------------------------------------------------------------------------
 
@@ -1442,14 +1444,14 @@ with tab_predict:
 
                             # Tạo PD label
                             if pd.notna(probs) and pd.notna(preds):
-                                pd_label_text = "Default (Vỡ nợ)" if preds[0] == 1 else "Non-Default (Không vỡ nợ)"
+                                pd_label_text = "Default (Vỡ nợ)" if preds == 1 else "Non-Default (Không vỡ nợ)"
                             else:
                                 pd_label_text = "N/A"
 
                             # Generate PDF
                             pdf_buffer = generate_pdf_report(
                                 ratios_display=ratios_display,
-                                pd_value=probs[0] if pd.notna(probs) else np.nan,
+                                pd_value=probs if pd.notna(probs) else np.nan,
                                 pd_label=pd_label_text,
                                 ai_analysis=ai_analysis_text,
                                 fig_bar=fig_bar_export,
