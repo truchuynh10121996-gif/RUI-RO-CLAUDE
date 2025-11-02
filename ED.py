@@ -2473,7 +2473,7 @@ with tab_authors:
     col_left, col_center, col_right = st.columns([1, 2, 1])
     with col_center:
         try:
-            st.image("NHOM ANH SANG SO.jpg", use_container_width=True, caption="Đội ngũ Ánh Sáng Số - Tiên phong trong phân tích rủi ro tín dụng")
+            st.image("NHOM ANH SANG SO.jpg", use_container_width=True, caption="Team Ánh Sáng Số - Ánh sáng của đổi mới, bước đi của tương lai")
         except:
             st.info("📸 Ảnh nhóm: NHOM ANH SANG SO.jpg")
 
@@ -2483,7 +2483,7 @@ with tab_authors:
     st.markdown("""
         <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 10px; margin-bottom: 40px;'>
             <p style='color: #2c3e50; font-size: 1.1rem; line-height: 1.8; margin: 0;'>
-                🌟 Chúng tôi là đội ngũ chuyên gia đến từ <strong>Agribank</strong>, tận tâm phát triển
+                🌟 Chúng tôi là những Agribanker - những người giữ ánh sáng của niềm tin, lan tỏa tinh thần chuyển đổi số trên mọi miền đất nước
                 giải pháp <strong>Đánh giá Rủi ro Tín dụng Doanh nghiệp phiên bản 2.0</strong>
                 với công nghệ AI tiên tiến, mang đến sự chính xác và hiệu quả cao nhất.
             </p>
@@ -2597,9 +2597,7 @@ with tab_authors:
         <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%); border-radius: 15px; margin-top: 40px; box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);'>
             <h3 style='color: white; margin: 0 0 15px 0; font-size: 1.8rem;'>🚀 Sứ mệnh của chúng tôi</h3>
             <p style='color: #fff; font-size: 1.1rem; line-height: 1.8; margin: 0;'>
-                Xây dựng giải pháp công nghệ tiên tiến, ứng dụng AI và Machine Learning<br>
-                để nâng cao hiệu quả đánh giá rủi ro tín dụng, góp phần phát triển<br>
-                hệ thống ngân hàng Việt Nam trong kỷ nguyên số.
+                Ứng dụng trí tuệ nhân tạo và công nghệ số để nâng cao hiệu quả hoạt động, quản trị rủi ro và chất lượng phục vụ khách hàng, góp phần hiện thực hóa chiến lược chuyển đổi số của Agribank.
             </p>
             <div style='margin-top: 20px; font-size: 2rem;'>
                 💡 🎯 🌟 💼 🏆
