@@ -1098,7 +1098,7 @@ with tab_predict:
         
         ai_container = st.container(border=True)
         with ai_container:
-            st.markdown("Sử dụng Gemini AI để phân tích toàn diện các chỉ số và đưa ra khuyến nghị chuyên nghiệp.")
+            st.markdown("Sử dụng AI để phân tích toàn diện các chỉ số và đưa ra khuyến nghị chuyên nghiệp.")
             
             if st.button("✨ Yêu cầu AI Phân tích & Đề xuất", use_container_width=True, type="primary"):
                 # Kiểm tra API Key: ưu tiên lấy từ secrets
