@@ -1699,7 +1699,7 @@ with tab_dashboard:
     col_ai, col_sample, col_upload = st.columns([1, 1, 2])
 
     with col_ai:
-        st.markdown("#### 🤖 Dữ liệu lấy từ Gemini AI")
+        st.markdown("#### 🤖 Dữ liệu lấy từ Gemini")
         use_ai_data = st.button("🚀 Bấm để tạo", use_container_width=True, type="primary",
                                 help="Tự động lấy dữ liệu tài chính doanh nghiệp VN mới nhất từ Gemini AI")
 
