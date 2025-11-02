@@ -19,6 +19,15 @@ from sklearn.metrics import (
     roc_auc_score,
     ConfusionMatrixDisplay,
 )
+import time
+
+# Thư viện RSS Feed
+try:
+    import feedparser
+    _FEEDPARSER_OK = True
+except Exception:
+    feedparser = None
+    _FEEDPARSER_OK = False
 
 # Thư viện GOOGLE GEMINI VÀ OPENAI (Giữ nguyên logic kiểm tra thư viện)
 try:
@@ -935,6 +944,60 @@ def compute_ratios_from_three_sheets(xlsx_file) -> pd.DataFrame:
     return ratios
 
 # =========================
+# HÀM ĐỌC RSS FEED
+# =========================
+
+@st.cache_data(ttl=7200)  # Cache 120 phút = 7200 giây
+def fetch_rss_feed(url, source_name):
+    """
+    Đọc RSS feed từ URL và trả về 5 bài mới nhất.
+
+    Parameters:
+    - url: Đường dẫn RSS feed
+    - source_name: Tên nguồn tin
+
+    Returns:
+    - List của dict chứa {title, link, published}
+    """
+    if not _FEEDPARSER_OK:
+        return [{"title": "⚠️ Thiếu thư viện feedparser", "link": "#", "published": ""}]
+
+    try:
+        feed = feedparser.parse(url)
+        articles = []
+
+        # Lấy 5 bài mới nhất
+        for entry in feed.entries[:5]:
+            title = entry.get('title', 'Không có tiêu đề')
+            link = entry.get('link', '#')
+
+            # Xử lý thời gian
+            published = entry.get('published', '')
+            if not published:
+                published = entry.get('updated', '')
+
+            # Parse thời gian nếu có
+            pub_time = ""
+            if published:
+                try:
+                    from dateutil import parser as date_parser
+                    dt = date_parser.parse(published)
+                    pub_time = dt.strftime('%d/%m/%Y %H:%M')
+                except:
+                    pub_time = published
+
+            articles.append({
+                'title': title,
+                'link': link,
+                'published': pub_time
+            })
+
+        return articles if articles else [{"title": "Không có bài viết mới", "link": "#", "published": ""}]
+
+    except Exception as e:
+        return [{"title": f"⚠️ Lỗi khi đọc RSS: {str(e)[:50]}", "link": "#", "published": ""}]
+
+# =========================
 # UI & TRAIN MODEL
 # =========================
 np.random.seed(0)
@@ -977,11 +1040,12 @@ if uploaded_file is not None:
 # Định nghĩa các Tabs
 # ------------------------------------------------------------------------------------------------
 # THAY ĐỔI 4: Vị trí Tabs được giữ nguyên, CSS mới sẽ đảm bảo Tabs có màu
-# Tab mới: Dashboard tài chính doanh nghiệp (GSO)
+# Tab mới: Dashboard tài chính doanh nghiệp (GSO) và Tin tức tài chính
 # ------------------------------------------------------------------------------------------------
-tab_predict, tab_dashboard, tab_build, tab_goal = st.tabs([
+tab_predict, tab_dashboard, tab_news, tab_build, tab_goal = st.tabs([
     "🚀 Sử dụng mô hình dự báo",
     "📊 Dashboard tài chính doanh nghiệp",
+    "📰 Tin tức tài chính",
     "🛠️ Xây dựng mô hình",
     "🎯 Mục tiêu của mô hình"
 ])
@@ -1087,7 +1151,7 @@ with tab_goal:
     # Nút lên đầu trang
     st.markdown("""
         <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
-            <a href='#' style='text-decoration: none;'>
+            <a href='#top' onclick='window.scrollTo({top: 0, behavior: "smooth"}); return false;' style='text-decoration: none;'>
                 <button style='
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
@@ -1229,7 +1293,7 @@ with tab_build:
     # Nút lên đầu trang
     st.markdown("""
         <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
-            <a href='#' style='text-decoration: none;'>
+            <a href='#top' onclick='window.scrollTo({top: 0, behavior: "smooth"}); return false;' style='text-decoration: none;'>
                 <button style='
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
@@ -1625,7 +1689,7 @@ with tab_predict:
     # Nút lên đầu trang
     st.markdown("""
         <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
-            <a href='#' style='text-decoration: none;'>
+            <a href='#top' onclick='window.scrollTo({top: 0, behavior: "smooth"}); return false;' style='text-decoration: none;'>
                 <button style='
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
@@ -2024,7 +2088,202 @@ with tab_dashboard:
     # Nút lên đầu trang
     st.markdown("""
         <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
-            <a href='#' style='text-decoration: none;'>
+            <a href='#top' onclick='window.scrollTo({top: 0, behavior: "smooth"}); return false;' style='text-decoration: none;'>
+                <button style='
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    transition: all 0.3s ease;
+                '>
+                    ⬆️ Lên đầu trang
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
+
+# ========================================
+# TAB: TIN TỨC TÀI CHÍNH
+# ========================================
+with tab_news:
+    st.header("📰 Tin tức Tài chính")
+    st.markdown("""
+    Tin tức tài chính mới nhất từ các nguồn uy tín tại Việt Nam.
+    Dữ liệu tự động cập nhật mỗi **120 phút**.
+    """)
+
+    st.divider()
+
+    if not _FEEDPARSER_OK:
+        st.error("⚠️ **Thiếu thư viện feedparser**. Vui lòng cài đặt: `pip install feedparser python-dateutil`")
+    else:
+        # Định nghĩa các nguồn RSS
+        rss_sources = {
+            "📊 CafeF": "https://cafef.vn/thi-truong-chung-khoan.rss",
+            "💼 Vietstock": "https://vietstock.vn/rss/tai-chinh.rss",
+            "💰 Báo Đầu tư": "https://baodautu.vn/rss/kinh-doanh.rss",
+            "🏢 VNExpress Kinh doanh": "https://vnexpress.net/rss/kinh-doanh.rss"
+        }
+
+        # Hiển thị thời gian cập nhật
+        col_update, col_cache = st.columns([3, 1])
+        with col_update:
+            st.caption(f"🕐 Cập nhật: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
+        with col_cache:
+            st.caption("♻️ Cache: 120 phút")
+
+        st.divider()
+
+        # Tạo layout 2 cột
+        col1, col2 = st.columns(2)
+
+        sources_list = list(rss_sources.items())
+
+        # Hiển thị nguồn tin 1 và 2 ở cột trái
+        with col1:
+            # Nguồn 1: CafeF
+            source_name, source_url = sources_list[0]
+            with st.container(border=True):
+                st.markdown(f"### {source_name}")
+                articles = fetch_rss_feed(source_url, source_name)
+
+                for i, article in enumerate(articles):
+                    st.markdown(f"""
+                    <div style='
+                        padding: 10px;
+                        margin: 8px 0;
+                        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        border-radius: 8px;
+                        border-left: 4px solid #667eea;
+                    '>
+                        <div style='font-size: 14px; font-weight: 600; color: #2c3e50; margin-bottom: 5px;'>
+                            📌 {article['title']}
+                        </div>
+                        <div style='font-size: 12px; color: #7f8c8d; margin-bottom: 8px;'>
+                            🕐 {article['published']}
+                        </div>
+                        <a href='{article['link']}' target='_blank' style='
+                            color: #667eea;
+                            text-decoration: none;
+                            font-size: 12px;
+                            font-weight: 600;
+                        '>
+                            🔗 Đọc chi tiết →
+                        </a>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # Nguồn 3: Báo Đầu tư
+            source_name, source_url = sources_list[2]
+            with st.container(border=True):
+                st.markdown(f"### {source_name}")
+                articles = fetch_rss_feed(source_url, source_name)
+
+                for i, article in enumerate(articles):
+                    st.markdown(f"""
+                    <div style='
+                        padding: 10px;
+                        margin: 8px 0;
+                        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        border-radius: 8px;
+                        border-left: 4px solid #667eea;
+                    '>
+                        <div style='font-size: 14px; font-weight: 600; color: #2c3e50; margin-bottom: 5px;'>
+                            📌 {article['title']}
+                        </div>
+                        <div style='font-size: 12px; color: #7f8c8d; margin-bottom: 8px;'>
+                            🕐 {article['published']}
+                        </div>
+                        <a href='{article['link']}' target='_blank' style='
+                            color: #667eea;
+                            text-decoration: none;
+                            font-size: 12px;
+                            font-weight: 600;
+                        '>
+                            🔗 Đọc chi tiết →
+                        </a>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+        # Hiển thị nguồn tin 2 và 4 ở cột phải
+        with col2:
+            # Nguồn 2: Vietstock
+            source_name, source_url = sources_list[1]
+            with st.container(border=True):
+                st.markdown(f"### {source_name}")
+                articles = fetch_rss_feed(source_url, source_name)
+
+                for i, article in enumerate(articles):
+                    st.markdown(f"""
+                    <div style='
+                        padding: 10px;
+                        margin: 8px 0;
+                        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        border-radius: 8px;
+                        border-left: 4px solid #667eea;
+                    '>
+                        <div style='font-size: 14px; font-weight: 600; color: #2c3e50; margin-bottom: 5px;'>
+                            📌 {article['title']}
+                        </div>
+                        <div style='font-size: 12px; color: #7f8c8d; margin-bottom: 8px;'>
+                            🕐 {article['published']}
+                        </div>
+                        <a href='{article['link']}' target='_blank' style='
+                            color: #667eea;
+                            text-decoration: none;
+                            font-size: 12px;
+                            font-weight: 600;
+                        '>
+                            🔗 Đọc chi tiết →
+                        </a>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+            st.markdown("<br>", unsafe_allow_html=True)
+
+            # Nguồn 4: VNExpress
+            source_name, source_url = sources_list[3]
+            with st.container(border=True):
+                st.markdown(f"### {source_name}")
+                articles = fetch_rss_feed(source_url, source_name)
+
+                for i, article in enumerate(articles):
+                    st.markdown(f"""
+                    <div style='
+                        padding: 10px;
+                        margin: 8px 0;
+                        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+                        border-radius: 8px;
+                        border-left: 4px solid #667eea;
+                    '>
+                        <div style='font-size: 14px; font-weight: 600; color: #2c3e50; margin-bottom: 5px;'>
+                            📌 {article['title']}
+                        </div>
+                        <div style='font-size: 12px; color: #7f8c8d; margin-bottom: 8px;'>
+                            🕐 {article['published']}
+                        </div>
+                        <a href='{article['link']}' target='_blank' style='
+                            color: #667eea;
+                            text-decoration: none;
+                            font-size: 12px;
+                            font-weight: 600;
+                        '>
+                            🔗 Đọc chi tiết →
+                        </a>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+    # Nút lên đầu trang
+    st.markdown("""
+        <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
+            <a href='#top' onclick='window.scrollTo({top: 0, behavior: "smooth"}); return false;' style='text-decoration: none;'>
                 <button style='
                     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                     color: white;
