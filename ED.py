@@ -2459,7 +2459,7 @@ with tab_news:
 with tab_authors:
     # Header với hiệu ứng gradient
     st.markdown("""
-        <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);'>
+        <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%); border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);'>
             <h1 style='color: white; margin: 0; font-size: 2.5rem; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);'>
                 👥 NHÓM ÁNH SÁNG SỐ
             </h1>
