@@ -1576,11 +1576,36 @@ with tab_predict:
         # Khu vực Phân tích AI
         st.markdown("### 3. 🧠 Phân tích AI & Khuyến nghị Tín dụng")
 
+        # Khởi tạo session_state cho phân tích AI
+        if 'show_ai_analysis' not in st.session_state:
+            st.session_state['show_ai_analysis'] = False
+        if 'ai_analysis' not in st.session_state:
+            st.session_state['ai_analysis'] = ''
+        if 'chat_messages' not in st.session_state:
+            st.session_state['chat_messages'] = []
+        if 'ai_context_data' not in st.session_state:
+            st.session_state['ai_context_data'] = {}
+
         ai_container = st.container(border=True)
         with ai_container:
             st.markdown("Sử dụng AI để phân tích toàn diện các chỉ số và đưa ra khuyến nghị chuyên nghiệp.")
 
-            if st.button("✨ Yêu cầu AI Phân tích & Đề xuất", use_container_width=True, type="primary"):
+            # Tạo 2 cột cho nút phân tích và nút ẩn
+            col_btn1, col_btn2 = st.columns([3, 1])
+
+            with col_btn1:
+                analyze_button = st.button("✨ Yêu cầu AI Phân tích & Đề xuất", use_container_width=True, type="primary", key="analyze_ai_btn")
+
+            with col_btn2:
+                if st.session_state['show_ai_analysis']:
+                    hide_button = st.button("🔽 Ẩn phân tích", use_container_width=True, key="hide_ai_btn")
+                    if hide_button:
+                        st.session_state['show_ai_analysis'] = False
+                        st.session_state['chat_messages'] = []
+                        st.rerun()
+
+            # Xử lý khi người dùng click nút phân tích
+            if analyze_button:
                 # Kiểm tra API Key: ưu tiên lấy từ secrets
                 api_key = st.secrets.get("GEMINI_API_KEY")
 
@@ -1595,93 +1620,100 @@ with tab_predict:
                     ai_result = get_ai_analysis(data_for_ai, api_key)
                     progress_bar.empty() # Xóa thanh tiến trình
 
-                    st.markdown("**Kết quả Phân tích Chi tiết từ Gemini AI:**")
-
-                    if "KHÔNG CHO VAY" in ai_result.upper():
-                        st.error("🚨 **KHUYẾN NGHỊ CUỐI CÙNG: KHÔNG CHO VAY**")
-                        st.snow()
-                    elif "CHO VAY" in ai_result.upper():
-                        st.success("✅ **KHUYẾN NGHỊ CUỐI CÙNG: CHO VAY**")
-                        st.balloons()
-                    else:
-                        st.info("💡 **KHUYẾN NGHỊ CUỐI CÙNG**")
-
-                    st.info(ai_result)
-
-                    # Lưu kết quả AI vào session_state để export PDF
+                    # Lưu kết quả vào session_state
                     st.session_state['ai_analysis'] = ai_result
-
-                    # ===== CHATBOT GEMINI AI =====
-                    st.markdown("---")
-                    st.markdown("#### 💬 Chatbot - Hỏi thêm thông tin")
-
-                    # Khởi tạo chat history trong session_state
-                    if 'chat_messages' not in st.session_state:
-                        st.session_state['chat_messages'] = []
-
-                    # Container cho chatbot
-                    chatbot_container = st.container(border=True)
-                    with chatbot_container:
-                        st.markdown("Bạn có thể hỏi thêm về kết quả phân tích, các chỉ số tài chính, hoặc bất kỳ câu hỏi nào liên quan đến tín dụng.")
-
-                        # Hiển thị lịch sử chat
-                        if st.session_state['chat_messages']:
-                            st.markdown("**Lịch sử trò chuyện:**")
-                            for msg in st.session_state['chat_messages']:
-                                if msg['role'] == 'user':
-                                    st.markdown(f"**👤 Bạn:** {msg['content']}")
-                                else:
-                                    st.markdown(f"**🤖 Gemini AI:** {msg['content']}")
-                            st.markdown("---")
-
-                        # Form nhập câu hỏi
-                        with st.form(key='chat_form', clear_on_submit=True):
-                            user_question = st.text_input(
-                                "Nhập câu hỏi của bạn:",
-                                placeholder="VD: Giải thích thêm về chỉ số thanh khoản...",
-                                key='user_question_input'
-                            )
-
-                            col1, col2 = st.columns([1, 5])
-                            with col1:
-                                submit_button = st.form_submit_button("📤 Gửi", use_container_width=True)
-                            with col2:
-                                clear_button = st.form_submit_button("🗑️ Xóa lịch sử chat", use_container_width=True)
-
-                        # Xử lý khi người dùng gửi câu hỏi
-                        if submit_button and user_question.strip():
-                            # Lưu câu hỏi của user
-                            st.session_state['chat_messages'].append({
-                                'role': 'user',
-                                'content': user_question
-                            })
-
-                            # Chuẩn bị context data cho chatbot
-                            context_data = {
-                                'chỉ_số_tài_chính': data_for_ai,
-                                'phân_tích_trước_đó': ai_result
-                            }
-
-                            # Gọi chatbot API
-                            with st.spinner("🤔 Gemini đang suy nghĩ..."):
-                                bot_response = chat_with_gemini(user_question, api_key, context_data)
-
-                            # Lưu response của bot
-                            st.session_state['chat_messages'].append({
-                                'role': 'assistant',
-                                'content': bot_response
-                            })
-
-                            # Rerun để hiển thị tin nhắn mới
-                            st.rerun()
-
-                        # Xử lý khi người dùng xóa lịch sử
-                        if clear_button:
-                            st.session_state['chat_messages'] = []
-                            st.rerun()
-
+                    st.session_state['show_ai_analysis'] = True
+                    st.session_state['ai_context_data'] = data_for_ai
+                    st.session_state['chat_messages'] = []  # Reset chat khi phân tích mới
+                    st.rerun()
                 else:
                     st.error("❌ **Lỗi Khóa API**: Không tìm thấy Khóa API. Vui lòng cấu hình Khóa **'GEMINI_API_KEY'** trong Streamlit Secrets.")
+
+        # Hiển thị kết quả phân tích AI và chatbot nếu đã có phân tích
+        if st.session_state['show_ai_analysis'] and st.session_state['ai_analysis']:
+            ai_result = st.session_state['ai_analysis']
+
+            st.markdown("---")
+            st.markdown("**Kết quả Phân tích Chi tiết từ Gemini AI:**")
+
+            if "KHÔNG CHO VAY" in ai_result.upper():
+                st.error("🚨 **KHUYẾN NGHỊ CUỐI CÙNG: KHÔNG CHO VAY**")
+                st.snow()
+            elif "CHO VAY" in ai_result.upper():
+                st.success("✅ **KHUYẾN NGHỊ CUỐI CÙNG: CHO VAY**")
+                st.balloons()
+            else:
+                st.info("💡 **KHUYẾN NGHỊ CUỐI CÙNG**")
+
+            st.info(ai_result)
+
+            # ===== CHATBOT GEMINI AI =====
+            st.markdown("---")
+            st.markdown("#### 💬 Chatbot - Hỏi thêm thông tin")
+
+            # Container cho chatbot
+            chatbot_container = st.container(border=True)
+            with chatbot_container:
+                st.markdown("Bạn có thể hỏi thêm về kết quả phân tích, các chỉ số tài chính, hoặc bất kỳ câu hỏi nào liên quan đến tín dụng.")
+
+                # Hiển thị lịch sử chat
+                if st.session_state['chat_messages']:
+                    st.markdown("**Lịch sử trò chuyện:**")
+                    for msg in st.session_state['chat_messages']:
+                        if msg['role'] == 'user':
+                            st.markdown(f"**👤 Bạn:** {msg['content']}")
+                        else:
+                            st.markdown(f"**🤖 Gemini AI:** {msg['content']}")
+                    st.markdown("---")
+
+                # Form nhập câu hỏi
+                with st.form(key='chat_form', clear_on_submit=True):
+                    user_question = st.text_input(
+                        "Nhập câu hỏi của bạn:",
+                        placeholder="VD: Giải thích thêm về chỉ số thanh khoản...",
+                        key='user_question_input'
+                    )
+
+                    col1, col2 = st.columns([1, 5])
+                    with col1:
+                        submit_button = st.form_submit_button("📤 Gửi", use_container_width=True)
+                    with col2:
+                        clear_button = st.form_submit_button("🗑️ Xóa lịch sử chat", use_container_width=True)
+
+                # Xử lý khi người dùng gửi câu hỏi
+                if submit_button and user_question.strip():
+                    # Lấy API key
+                    api_key = st.secrets.get("GEMINI_API_KEY")
+
+                    # Lưu câu hỏi của user
+                    st.session_state['chat_messages'].append({
+                        'role': 'user',
+                        'content': user_question
+                    })
+
+                    # Chuẩn bị context data cho chatbot
+                    context_data = {
+                        'chỉ_số_tài_chính': st.session_state.get('ai_context_data', data_for_ai),
+                        'phân_tích_trước_đó': st.session_state['ai_analysis']
+                    }
+
+                    # Gọi chatbot API
+                    with st.spinner("🤔 Gemini đang suy nghĩ..."):
+                        bot_response = chat_with_gemini(user_question, api_key, context_data)
+
+                    # Lưu response của bot
+                    st.session_state['chat_messages'].append({
+                        'role': 'assistant',
+                        'content': bot_response
+                    })
+
+                    # Rerun để hiển thị tin nhắn mới
+                    st.rerun()
+
+                # Xử lý khi người dùng xóa lịch sử
+                if clear_button:
+                    st.session_state['chat_messages'] = []
+                    st.rerun()
 
         st.divider()
 
