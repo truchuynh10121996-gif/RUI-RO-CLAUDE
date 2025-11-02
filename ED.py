@@ -681,8 +681,8 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
     client = genai.Client(api_key=api_key)
 
     sys_prompt = (
-        "Bạn là chuyên gia phân tích tín dụng doanh nghiệp tại ngân hàng. "
-        "Phân tích toàn diện dựa trên 14 chỉ số tài chính được cung cấp và PD (Nếu có) "
+        "Bạn là chuyên gia phân tích tín dụng doanh nghiệp tại ngân hàng Việt Nam. "
+        "Phân tích toàn diện dựa trên 14 chỉ số tài chính được cung cấp và PD (Nếu có). Lưu ý PD trong mô hình này được tính theo bối cảnh doanh nghiệp Việt Nam"
         "Nêu rõ: (1) Khả năng sinh lời, (2) Thanh khoản, (3) Cơ cấu nợ, (4) Hiệu quả hoạt động. "
         "Kết thúc bằng khuyến nghị in hoa: CHO VAY hoặc KHÔNG CHO VAY, kèm 2–3 điều kiện nếu CHO VAY. "
         "Viết bằng tiếng Việt súc tích, chuyên nghiệp."
