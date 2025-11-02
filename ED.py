@@ -2517,8 +2517,8 @@ with tab_authors:
                         <li>Kỹ thuật chính – Coder chính cho mô hình 2.0</li>
                         <li>Trailer giới thiệu mô hình nâng cấp</li>
                         <li>Phân chia, tổ chức công việc nhóm</li>
-                        <li>Hỗ trợ kỹ thuật cho version 1.0</li>
-                        <li>Kịch bản & Thuyết trình Demo v1.0</li>
+                        <li>Hỗ trợ kỹ thuật cho Version 1.0</li>
+                        <li>Kịch bản & Thuyết trình Demo Version 1.0</li>
                     </ul>
                 </div>
             </div>
@@ -2548,9 +2548,9 @@ with tab_authors:
                 <div style='background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 10px; margin-top: 15px;'>
                     <p style='color: #2c5aa0; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem;'>💼 Vai trò trong nhóm:</p>
                     <ul style='color: #2c3e50; margin: 0; padding-left: 20px; line-height: 1.8;'>
-                        <li>Kỹ thuật chính – Coder chính mô hình version 1.0</li>
-                        <li>Demo trực tiếp mô hình v1.0 trên sân khấu</li>
-                        <li>Hỗ trợ kỹ thuật cho mô hình nâng cấp v2.0</li>
+                        <li>Kỹ thuật chính – Coder chính mô hình Version 1.0</li>
+                        <li>Demo trực tiếp mô hình Version 1.0 trên sân khấu</li>
+                        <li>Hỗ trợ kỹ thuật cho mô hình nâng cấp Version 2.0</li>
                     </ul>
                 </div>
             </div>
@@ -2580,7 +2580,7 @@ with tab_authors:
                 <div style='background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 10px; margin-top: 15px;'>
                     <p style='color: #e17055; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem;'>💼 Vai trò trong nhóm:</p>
                     <ul style='color: #2c3e50; margin: 0; padding-left: 20px; line-height: 1.8;'>
-                        <li>Hỗ trợ kỹ thuật cho mô hình version 1.0</li>
+                        <li>Hỗ trợ kỹ thuật cho mô hình Version 1.0</li>
                         <li>Thuyết trình sân khấu Demo Version 1.0</li>
                         <li>Thiết kế Poster mô hình Version 1.0</li>
                     </ul>
