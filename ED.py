@@ -1090,10 +1090,11 @@ if uploaded_file is not None:
 # THAY ĐỔI 4: Vị trí Tabs được giữ nguyên, CSS mới sẽ đảm bảo Tabs có màu
 # Tab mới: Dashboard tài chính doanh nghiệp (GSO) và Tin tức tài chính
 # ------------------------------------------------------------------------------------------------
-tab_predict, tab_dashboard, tab_news, tab_build, tab_goal = st.tabs([
+tab_predict, tab_dashboard, tab_news, tab_authors, tab_build, tab_goal = st.tabs([
     "🚀 Sử dụng mô hình dự báo",
     "📊 Dashboard tài chính doanh nghiệp",
     "📰 Tin tức tài chính",
+    "👥 Nhóm tác giả",
     "🛠️ Xây dựng mô hình",
     "🎯 Mục tiêu của mô hình"
 ])
@@ -2429,6 +2430,182 @@ with tab_news:
                         </a>
                     </div>
                     """, unsafe_allow_html=True)
+
+    # Nút lên đầu trang
+    st.markdown("""
+        <div style='text-align: center; margin-top: 40px; margin-bottom: 20px;'>
+            <a href='#top' onclick='window.scrollTo({top: 0, behavior: "smooth"}); return false;' style='text-decoration: none;'>
+                <button style='
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    border: none;
+                    padding: 12px 30px;
+                    border-radius: 25px;
+                    font-size: 16px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+                    transition: all 0.3s ease;
+                '>
+                    ⬆️ Lên đầu trang
+                </button>
+            </a>
+        </div>
+    """, unsafe_allow_html=True)
+
+# ========================================
+# TAB: NHÓM TÁC GIẢ
+# ========================================
+with tab_authors:
+    # Header với hiệu ứng gradient
+    st.markdown("""
+        <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 15px; margin-bottom: 30px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);'>
+            <h1 style='color: white; margin: 0; font-size: 2.5rem; font-weight: 700; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);'>
+                👥 NHÓM ÁNH SÁNG SỐ
+            </h1>
+            <p style='color: #f0f0f0; font-size: 1.1rem; margin-top: 10px; font-weight: 500;'>
+                Cuộc thi Agribank làm chủ công nghệ trong kỷ nguyên số 2025
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    # Ảnh nhóm ở giữa
+    col_left, col_center, col_right = st.columns([1, 2, 1])
+    with col_center:
+        try:
+            st.image("NHOM ANH SANG SO.jpg", use_container_width=True, caption="Đội ngũ Ánh Sáng Số - Tiên phong trong phân tích rủi ro tín dụng")
+        except:
+            st.info("📸 Ảnh nhóm: NHOM ANH SANG SO.jpg")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Giới thiệu chung
+    st.markdown("""
+        <div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 10px; margin-bottom: 40px;'>
+            <p style='color: #2c3e50; font-size: 1.1rem; line-height: 1.8; margin: 0;'>
+                🌟 Chúng tôi là đội ngũ chuyên gia đến từ <strong>Agribank</strong>, tận tâm phát triển
+                giải pháp <strong>Đánh giá Rủi ro Tín dụng Doanh nghiệp phiên bản 2.0</strong>
+                với công nghệ AI tiên tiến, mang đến sự chính xác và hiệu quả cao nhất.
+            </p>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("### 🌟 Thành viên nhóm")
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # Profile thành viên 1: Trần Ngọc Trúc Huỳnh
+    col1, col2 = st.columns([1, 2])
+
+    with col1:
+        try:
+            st.image("Tran Ngoc Truc Huynh.jpg", use_container_width=True)
+        except:
+            st.info("📸 Tran Ngoc Truc Huynh.jpg")
+
+    with col2:
+        st.markdown("""
+            <div style='background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); padding: 25px; border-radius: 15px; box-shadow: 0 8px 20px rgba(252, 182, 159, 0.3); height: 100%;'>
+                <h3 style='color: #d63447; margin-top: 0; font-size: 1.8rem; border-bottom: 3px solid #d63447; padding-bottom: 10px;'>
+                    🎯 Trần Ngọc Trúc Huỳnh
+                </h3>
+                <p style='color: #2c3e50; margin: 15px 0; font-size: 1.05rem;'>
+                    <strong>🏢 Chức vụ:</strong> Giao dịch viên<br>
+                    <strong>📍 Đơn vị:</strong> Agribank chi nhánh Tiền Giang
+                </p>
+                <div style='background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 10px; margin-top: 15px;'>
+                    <p style='color: #d63447; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem;'>💼 Vai trò trong nhóm:</p>
+                    <ul style='color: #2c3e50; margin: 0; padding-left: 20px; line-height: 1.8;'>
+                        <li>Ý tưởng nâng cấp chương trình phiên bản 2.0</li>
+                        <li>Kỹ thuật chính – Coder chính cho mô hình 2.0</li>
+                        <li>Trailer giới thiệu mô hình nâng cấp</li>
+                        <li>Phân chia, tổ chức công việc nhóm</li>
+                        <li>Hỗ trợ kỹ thuật cho version 1.0</li>
+                        <li>Kịch bản & Thuyết trình Demo v1.0</li>
+                    </ul>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    # Profile thành viên 2: Nguyễn Hồng Cường
+    col1, col2 = st.columns([1, 2])
+
+    with col1:
+        try:
+            st.image("NGUYEN HONG CUONG.jpg", use_container_width=True)
+        except:
+            st.info("📸 NGUYEN HONG CUONG.jpg")
+
+    with col2:
+        st.markdown("""
+            <div style='background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%); padding: 25px; border-radius: 15px; box-shadow: 0 8px 20px rgba(161, 196, 253, 0.3); height: 100%;'>
+                <h3 style='color: #2c5aa0; margin-top: 0; font-size: 1.8rem; border-bottom: 3px solid #2c5aa0; padding-bottom: 10px;'>
+                    🎯 Nguyễn Hồng Cường
+                </h3>
+                <p style='color: #2c3e50; margin: 15px 0; font-size: 1.05rem;'>
+                    <strong>🏢 Chức vụ:</strong> Trưởng phòng Kiểm tra – Kiểm soát Nội bộ<br>
+                    <strong>📍 Đơn vị:</strong> Agribank chi nhánh Đông Hải Phòng
+                </p>
+                <div style='background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 10px; margin-top: 15px;'>
+                    <p style='color: #2c5aa0; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem;'>💼 Vai trò trong nhóm:</p>
+                    <ul style='color: #2c3e50; margin: 0; padding-left: 20px; line-height: 1.8;'>
+                        <li>Kỹ thuật chính – Coder chính mô hình version 1.0</li>
+                        <li>Demo trực tiếp mô hình v1.0 trên sân khấu</li>
+                        <li>Hỗ trợ kỹ thuật cho mô hình nâng cấp v2.0</li>
+                    </ul>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    # Profile thành viên 3: Nguyễn Trung Thành
+    col1, col2 = st.columns([1, 2])
+
+    with col1:
+        try:
+            st.image("NGUYEN TRUNG THANH.jpg", use_container_width=True)
+        except:
+            st.info("📸 NGUYEN TRUNG THANH.jpg")
+
+    with col2:
+        st.markdown("""
+            <div style='background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%); padding: 25px; border-radius: 15px; box-shadow: 0 8px 20px rgba(253, 203, 110, 0.3); height: 100%;'>
+                <h3 style='color: #e17055; margin-top: 0; font-size: 1.8rem; border-bottom: 3px solid #e17055; padding-bottom: 10px;'>
+                    🎯 Nguyễn Trung Thành
+                </h3>
+                <p style='color: #2c3e50; margin: 15px 0; font-size: 1.05rem;'>
+                    <strong>🏢 Chức vụ:</strong> Phó trưởng Phòng Kế toán Ngân quỹ<br>
+                    <strong>📍 Đơn vị:</strong> Agribank chi nhánh Hải Dương
+                </p>
+                <div style='background: rgba(255, 255, 255, 0.6); padding: 15px; border-radius: 10px; margin-top: 15px;'>
+                    <p style='color: #e17055; font-weight: 700; margin-bottom: 10px; font-size: 1.1rem;'>💼 Vai trò trong nhóm:</p>
+                    <ul style='color: #2c3e50; margin: 0; padding-left: 20px; line-height: 1.8;'>
+                        <li>Hỗ trợ kỹ thuật cho mô hình version 1.0</li>
+                        <li>Thuyết trình sân khấu Demo Version 1.0</li>
+                        <li>Thiết kế Poster mô hình Version 1.0</li>
+                    </ul>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br><br>", unsafe_allow_html=True)
+
+    # Thông điệp kết thúc
+    st.markdown("""
+        <div style='text-align: center; padding: 30px; background: linear-gradient(135deg, #ff6b9d 0%, #c06c84 100%); border-radius: 15px; margin-top: 40px; box-shadow: 0 10px 30px rgba(255, 107, 157, 0.3);'>
+            <h3 style='color: white; margin: 0 0 15px 0; font-size: 1.8rem;'>🚀 Sứ mệnh của chúng tôi</h3>
+            <p style='color: #fff; font-size: 1.1rem; line-height: 1.8; margin: 0;'>
+                Xây dựng giải pháp công nghệ tiên tiến, ứng dụng AI và Machine Learning<br>
+                để nâng cao hiệu quả đánh giá rủi ro tín dụng, góp phần phát triển<br>
+                hệ thống ngân hàng Việt Nam trong kỷ nguyên số.
+            </p>
+            <div style='margin-top: 20px; font-size: 2rem;'>
+                💡 🎯 🌟 💼 🏆
+            </div>
+        </div>
+    """, unsafe_allow_html=True)
 
     # Nút lên đầu trang
     st.markdown("""
