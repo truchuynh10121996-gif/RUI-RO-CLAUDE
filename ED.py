@@ -634,7 +634,7 @@ with col_logo:
 
 with col_title:
     st.markdown("""
-        <h1 style='margin: 0; padding: 0;'>CHƯƠNG TRÌNH ĐÁNH GIÁ RỦI RO TÍN DỤNG DOANH NGHIỆP</h1>
+        <h1 style='margin: 0; padding: 0;'>CHƯƠNG TRÌNH ĐÁNH GIÁ RỦI RO TÍN DỤNG KHDN</h1>
         <h3 style='margin: 5px 0 0 0;'>Dự báo Xác suất Vỡ nợ (PD) & Phân tích AI Chuyên sâu</h3>
     """, unsafe_allow_html=True)
 
@@ -1142,7 +1142,7 @@ footer_col1, footer_col2, footer_col3 = st.columns([2, 2, 1])
 with footer_col1:
     st.markdown("""
     <div style='padding: 15px; text-align: left;'>
-        <h4 style='color: #ff6b9d; margin-bottom: 10px;'>🏦 Chương Trình Đánh Giá Rủi Ro Tín Dụng Doanh Nghiệp</h4>
+        <h4 style='color: #ff6b9d; margin-bottom: 10px;'>🏦 Chương Trình Đánh Giá Rủi Ro Tín Dụng KHDN</h4>
         <p style='color: #6b7280; font-size: 0.9rem; margin: 5px 0;'>
             Giải pháp AI tiên tiến cho phân tích tài chính doanh nghiệp
         </p>
