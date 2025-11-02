@@ -687,7 +687,7 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
         "Kết thúc bằng khuyến nghị in hoa: CHO VAY hoặc KHÔNG CHO VAY, kèm 2–3 điều kiện nếu CHO VAY. "
         "Viết bằng tiếng Việt súc tích, chuyên nghiệp."
     )
-    
+
     # Gửi tên tiếng Việt dễ hiểu hơn cho AI
     user_prompt = "Bộ chỉ số tài chính và PD cần phân tích:\n" + str(data_payload) + "\n\nHãy phân tích và đưa ra khuyến nghị."
 
@@ -696,6 +696,54 @@ def get_ai_analysis(data_payload: dict, api_key: str) -> str:
             model=MODEL_NAME,
             contents=[
                 {"role": "user", "parts": [{"text": sys_prompt + "\n\n" + user_prompt}]}
+            ],
+            config={"system_instruction": sys_prompt}
+        )
+        return response.text
+    except APIError as e:
+        return f"Lỗi gọi API Gemini: {e}"
+    except Exception as e:
+        return f"Lỗi không xác định: {e}"
+
+
+def chat_with_gemini(user_message: str, api_key: str, context_data: dict = None) -> str:
+    """
+    Chatbot với Gemini AI để trả lời câu hỏi của người dùng về phân tích tín dụng.
+
+    Args:
+        user_message: Câu hỏi từ người dùng
+        api_key: API key của Gemini
+        context_data: Dữ liệu ngữ cảnh (chỉ số tài chính, PD, phân tích trước đó)
+
+    Returns:
+        Câu trả lời từ Gemini AI
+    """
+    if not _GEMINI_OK:
+        return "Lỗi: Thiếu thư viện google-genai (cần cài đặt: pip install google-genai)."
+
+    client = genai.Client(api_key=api_key)
+
+    # System prompt cho chatbot
+    sys_prompt = (
+        "Bạn là chuyên gia tư vấn tín dụng doanh nghiệp tại ngân hàng. "
+        "Nhiệm vụ của bạn là trả lời các câu hỏi của người dùng về phân tích tín dụng một cách chuyên nghiệp, "
+        "dựa trên dữ liệu tài chính và phân tích đã được cung cấp. "
+        "Trả lời súc tích, rõ ràng, dễ hiểu bằng tiếng Việt. "
+        "Nếu cần, đưa ra các khuyến nghị hoặc giải thích chi tiết về các chỉ số tài chính."
+    )
+
+    # Tạo context prompt nếu có dữ liệu
+    context_prompt = ""
+    if context_data:
+        context_prompt = "\n\nDữ liệu ngữ cảnh:\n" + str(context_data)
+
+    full_prompt = user_message + context_prompt
+
+    try:
+        response = client.models.generate_content(
+            model=MODEL_NAME,
+            contents=[
+                {"role": "user", "parts": [{"text": full_prompt}]}
             ],
             config={"system_instruction": sys_prompt}
         )
@@ -1562,6 +1610,76 @@ with tab_predict:
 
                     # Lưu kết quả AI vào session_state để export PDF
                     st.session_state['ai_analysis'] = ai_result
+
+                    # ===== CHATBOT GEMINI AI =====
+                    st.markdown("---")
+                    st.markdown("#### 💬 Chatbot - Hỏi thêm thông tin")
+
+                    # Khởi tạo chat history trong session_state
+                    if 'chat_messages' not in st.session_state:
+                        st.session_state['chat_messages'] = []
+
+                    # Container cho chatbot
+                    chatbot_container = st.container(border=True)
+                    with chatbot_container:
+                        st.markdown("Bạn có thể hỏi thêm về kết quả phân tích, các chỉ số tài chính, hoặc bất kỳ câu hỏi nào liên quan đến tín dụng.")
+
+                        # Hiển thị lịch sử chat
+                        if st.session_state['chat_messages']:
+                            st.markdown("**Lịch sử trò chuyện:**")
+                            for msg in st.session_state['chat_messages']:
+                                if msg['role'] == 'user':
+                                    st.markdown(f"**👤 Bạn:** {msg['content']}")
+                                else:
+                                    st.markdown(f"**🤖 Gemini AI:** {msg['content']}")
+                            st.markdown("---")
+
+                        # Form nhập câu hỏi
+                        with st.form(key='chat_form', clear_on_submit=True):
+                            user_question = st.text_input(
+                                "Nhập câu hỏi của bạn:",
+                                placeholder="VD: Giải thích thêm về chỉ số thanh khoản...",
+                                key='user_question_input'
+                            )
+
+                            col1, col2 = st.columns([1, 5])
+                            with col1:
+                                submit_button = st.form_submit_button("📤 Gửi", use_container_width=True)
+                            with col2:
+                                clear_button = st.form_submit_button("🗑️ Xóa lịch sử chat", use_container_width=True)
+
+                        # Xử lý khi người dùng gửi câu hỏi
+                        if submit_button and user_question.strip():
+                            # Lưu câu hỏi của user
+                            st.session_state['chat_messages'].append({
+                                'role': 'user',
+                                'content': user_question
+                            })
+
+                            # Chuẩn bị context data cho chatbot
+                            context_data = {
+                                'chỉ_số_tài_chính': data_for_ai,
+                                'phân_tích_trước_đó': ai_result
+                            }
+
+                            # Gọi chatbot API
+                            with st.spinner("🤔 Gemini đang suy nghĩ..."):
+                                bot_response = chat_with_gemini(user_question, api_key, context_data)
+
+                            # Lưu response của bot
+                            st.session_state['chat_messages'].append({
+                                'role': 'assistant',
+                                'content': bot_response
+                            })
+
+                            # Rerun để hiển thị tin nhắn mới
+                            st.rerun()
+
+                        # Xử lý khi người dùng xóa lịch sử
+                        if clear_button:
+                            st.session_state['chat_messages'] = []
+                            st.rerun()
+
                 else:
                     st.error("❌ **Lỗi Khóa API**: Không tìm thấy Khóa API. Vui lòng cấu hình Khóa **'GEMINI_API_KEY'** trong Streamlit Secrets.")
 
