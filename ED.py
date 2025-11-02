@@ -173,7 +173,7 @@ footer {visibility: hidden;}
 
 /* File uploader trong sidebar */
 div[data-testid="stFileUploader"] {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.95);
     border: 2px dashed #ffb3c6 !important;
     border-radius: 15px;
     padding: 20px;
@@ -183,10 +183,27 @@ div[data-testid="stFileUploader"] {
 }
 
 div[data-testid="stFileUploader"]:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 1);
     border-color: #ffc0cb !important;
     transform: translateY(-2px);
     box-shadow: 0 5px 20px rgba(255, 179, 198, 0.3);
+}
+
+/* Đổi màu chữ trong file uploader thành đen */
+div[data-testid="stFileUploader"] * {
+    color: #000000 !important;
+}
+
+div[data-testid="stFileUploader"] label {
+    color: #000000 !important;
+}
+
+div[data-testid="stFileUploader"] span {
+    color: #000000 !important;
+}
+
+div[data-testid="stFileUploader"] p {
+    color: #000000 !important;
 }
 
 /* ========== TABS PREMIUM DESIGN ========== */
