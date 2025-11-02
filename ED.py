@@ -2316,7 +2316,7 @@ with footer_col1:
             Giải pháp AI tiên tiến cho phân tích tài chính doanh nghiệp
         </p>
         <p style='color: #6b7280; font-size: 0.85rem; margin: 5px 0;'>
-            Powered by <strong>Gemini AI</strong> & <strong>Machine Learning</strong>
+            Authored by <strong>ÁNH SÁNG SỐ Team</strong> 
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -2327,9 +2327,9 @@ with footer_col2:
         <h4 style='color: #ff6b9d; margin-bottom: 10px;'>📊 Tính Năng Chính</h4>
         <ul style='color: #6b7280; font-size: 0.85rem; margin: 5px 0; padding-left: 20px;'>
             <li>Phân tích 14 chỉ số tài chính tự động</li>
-            <li>Dự báo xác suất vỡ nợ (PD) chính xác</li>
-            <li>Khuyến nghị tín dụng từ Gemini AI</li>
-            <li>Trực quan hóa dữ liệu chuyên nghiệp</li>
+            <li>Dự báo xác suất vỡ nợ (PD) và Phân tích chuyên sâu</li>
+            <li>DashBoard Tài Chính Doanh Nghiệp tổng quan</li>
+            <li>Tin tức tài chính cập nhật Real-Time</li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
