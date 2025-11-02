@@ -1704,7 +1704,7 @@ with tab_dashboard:
                                 help="Tự động lấy dữ liệu tài chính doanh nghiệp VN mới nhất từ Gemini AI")
 
     with col_sample:
-        st.markdown("#### 🎯 Demo Thử dữ liệu Mẫu")
+        st.markdown("#### 🎯 Demo Thử Mẫu")
         use_sample = st.button("📊 Dùng Thử", use_container_width=True, type="secondary")
 
     with col_upload:
