@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.metrics import (
     confusion_matrix,
     f1_score,
@@ -19,6 +20,12 @@ from sklearn.metrics import (
     roc_auc_score,
     ConfusionMatrixDisplay,
 )
+try:
+    from xgboost import XGBClassifier
+    _XGBOOST_OK = True
+except Exception:
+    XGBClassifier = None
+    _XGBOOST_OK = False
 import time
 
 # Thư viện RSS Feed
@@ -1106,7 +1113,7 @@ if df is None:
     # Logic cho các tab khi thiếu data huấn luyện
     with tab_predict:
         st.header("⚡ Dự báo PD & Phân tích AI cho Hồ sơ mới")
-        st.warning("⚠️ **Không thể dự báo PD**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để xây dựng mô hình Logistic Regression.")
+        st.warning("⚠️ **Không thể dự báo PD**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để xây dựng mô hình Ensemble.")
         up_xlsx = st.file_uploader("Tải **ho_so_dn.xlsx**", type=["xlsx"], key="ho_so_dn")
         if up_xlsx is None:
             st.info("Hãy tải **ho_so_dn.xlsx** (đủ 3 sheet) để tính X1…X14 và phân tích AI.")
@@ -1116,7 +1123,7 @@ if df is None:
         st.info("Ứng dụng này cần dữ liệu huấn luyện để bắt đầu hoạt động.")
     
     with tab_build:
-          st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
+          st.header("🛠️ Xây dựng & Đánh giá Mô hình Ensemble")
           st.error("❌ **Không thể xây dựng mô hình**. Vui lòng tải file **CSV Dữ liệu Huấn luyện** ở sidebar để bắt đầu.")
           
     st.stop()
@@ -1140,14 +1147,31 @@ if missing:
     st.stop()
 
 
-# Train model (GIỮ NGUYÊN)
+# Train model - NÂNG CẤP LÊN ENSEMBLE (Logistic + RandomForest + XGBoost)
 X = df[MODEL_COLS] # Chỉ lấy các cột X_1..X_14
 y = df['default'].astype(int)
 
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42, stratify=y
 )
-model = LogisticRegression(random_state=42, max_iter=1000, class_weight="balanced", solver="lbfgs")
+
+# Khởi tạo 3 mô hình cơ bản
+logistic_model = LogisticRegression(random_state=42, max_iter=1000, class_weight="balanced", solver="lbfgs")
+rf_model = RandomForestClassifier(n_estimators=100, random_state=42, class_weight="balanced", max_depth=10, min_samples_split=5)
+
+# Tạo danh sách estimators cho VotingClassifier
+estimators = [
+    ('logistic', logistic_model),
+    ('random_forest', rf_model)
+]
+
+# Thêm XGBoost nếu có sẵn thư viện
+if _XGBOOST_OK:
+    xgb_model = XGBClassifier(n_estimators=100, random_state=42, max_depth=6, learning_rate=0.1, eval_metric='logloss')
+    estimators.append(('xgboost', xgb_model))
+
+# Tạo Ensemble Model với Soft Voting (dựa trên xác suất)
+model = VotingClassifier(estimators=estimators, voting='soft')
 model.fit(X_train, y_train)
 
 # Dự báo & đánh giá (GIỮ NGUYÊN)
@@ -1176,9 +1200,11 @@ metrics_out = {
 with tab_goal:
     st.header("🎯 Mục tiêu của Mô hình")
     st.markdown("**Dự báo xác suất vỡ nợ (PD) của khách hàng doanh nghiệp** dựa trên bộ chỉ số $\text{X1}–\text{X14}$ (tính từ Bảng Cân đối Kế toán, Báo cáo Kết quả Kinh doanh và Báo cáo Lưu chuyển Tiền tệ).")
-    
+
+    st.info("🚀 **Mô hình Ensemble**: Kết hợp 3 thuật toán Machine Learning - Logistic Regression, Random Forest và XGBoost để đạt độ chính xác cao hơn.")
+
     with st.expander("🖼️ Mô tả trực quan mô hình"):
-        st.markdown("### Các hình ảnh minh họa cho mô hình Hồi quy Logistic và quy trình đánh giá rủi ro")
+        st.markdown("### Các hình ảnh minh họa cho mô hình Ensemble và quy trình đánh giá rủi ro")
 
         # Hiển thị hình ảnh trong columns để layout đẹp hơn
         col_img1, col_img2 = st.columns(2)
@@ -1220,8 +1246,14 @@ with tab_goal:
     """, unsafe_allow_html=True)
 
 with tab_build:
-    st.header("🛠️ Xây dựng & Đánh giá Mô hình LogReg")
-    st.info("Mô hình Hồi quy Logistic đã được huấn luyện trên **20% dữ liệu Test (chưa thấy)**.")
+    st.header("🛠️ Xây dựng & Đánh giá Mô hình Ensemble")
+
+    # Hiển thị thông tin về các mô hình được sử dụng
+    models_used = "Logistic Regression + Random Forest"
+    if _XGBOOST_OK:
+        models_used += " + XGBoost"
+
+    st.info(f"Mô hình **Ensemble ({models_used})** đã được huấn luyện trên **20% dữ liệu Test (chưa thấy)** với phương pháp **Soft Voting** (dựa trên xác suất).")
     
     # Hiển thị Metrics quan trọng bằng st.metric
     st.subheader("1. Tổng quan Kết quả Đánh giá (Test Set)")
@@ -1234,8 +1266,57 @@ with tab_build:
     
     st.divider()
 
+    # Hiển thị hiệu suất của từng mô hình trong ensemble
+    st.subheader("2. So sánh Hiệu suất các Mô hình trong Ensemble")
+
+    with st.expander("📈 Xem chi tiết hiệu suất từng mô hình", expanded=True):
+        st.markdown("##### Bảng so sánh AUC Score của từng mô hình trên Test Set")
+
+        # Tính AUC cho từng mô hình
+        individual_scores = {}
+
+        for name, estimator in model.named_estimators_.items():
+            try:
+                y_proba_individual = estimator.predict_proba(X_test)[:, 1]
+                auc_individual = roc_auc_score(y_test, y_proba_individual)
+                individual_scores[name] = auc_individual
+            except Exception as e:
+                individual_scores[name] = np.nan
+
+        # Thêm ensemble score
+        individual_scores['Ensemble (Soft Voting)'] = metrics_out['auc_out']
+
+        # Tạo DataFrame để hiển thị
+        comparison_df = pd.DataFrame({
+            'Mô hình': [
+                'Logistic Regression',
+                'Random Forest',
+                'XGBoost' if _XGBOOST_OK else None,
+                '🏆 Ensemble (Soft Voting)'
+            ],
+            'AUC Score': [
+                individual_scores.get('logistic', np.nan),
+                individual_scores.get('random_forest', np.nan),
+                individual_scores.get('xgboost', np.nan) if _XGBOOST_OK else None,
+                individual_scores.get('Ensemble (Soft Voting)', np.nan)
+            ]
+        }).dropna()
+
+        # Hiển thị bảng với styling
+        st.dataframe(
+            comparison_df.style.format({'AUC Score': '{:.4f}'})
+            .background_gradient(subset=['AUC Score'], cmap='RdYlGn', vmin=0.5, vmax=1.0)
+            .set_properties(**{'font-size': '14px', 'text-align': 'center'}),
+            use_container_width=True,
+            hide_index=True
+        )
+
+        st.caption("💡 **Ensemble Model** kết hợp các dự đoán từ tất cả mô hình để đưa ra kết quả cuối cùng chính xác hơn.")
+
+    st.divider()
+
     # Thống kê chi tiết & Biểu đồ
-    st.subheader("2. Dữ liệu và Trực quan hóa")
+    st.subheader("3. Dữ liệu và Trực quan hóa")
     
     with st.expander("📊 Thống kê Mô tả và Dữ liệu Mẫu"):
         st.markdown("##### Thống kê Mô tả các biến $X_1..X_{14}$")
@@ -1298,7 +1379,7 @@ with tab_build:
     
     st.divider()
 
-    st.subheader("3. Ma trận Nhầm lẫn và Bảng Metrics Chi tiết")
+    st.subheader("4. Ma trận Nhầm lẫn và Bảng Metrics Chi tiết")
     col_cm, col_metrics_table = st.columns(2)
     
     with col_cm:
